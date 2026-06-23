@@ -135,6 +135,7 @@
                 <select id="ad-cat" class="input my-2"></select>
                 <div class="grid-2"><input id="ad-adult" class="input" placeholder="Adult dose"><input id="ad-child" class="input" placeholder="Child dose"></div>
                 <button class="btn mt-2" onclick="addDrug()">Add Drug</button></div>
+<button class="btn mt-2" style="background:#6366f1" onclick="reloadDrugs()">🔄 Reload All Drugs from Database</button>
             <div id="admin-drugs-list" class="space-y-1 mt-3"></div></section>
         <section id="admin-users" class="view"><h2 class="text-xl font-bold mb-3">👥 Manage Users</h2>
             <div class="card"><h3 class="font-bold mb-2">Add User</h3>
@@ -411,3 +412,12 @@ load();
 </script>
 </body>
 </html>
+
+<script>
+async function reloadDrugs(){
+    if(!confirm('This will reload all drugs from master list. Continue?')) return;
+    let res = await api('/api/reload-drugs', {method:'POST'});
+    if(res.status === 'ok'){ alert('Reloaded '+res.count+' drugs'); load(); }
+    else { alert('Error: '+res.error); }
+}
+</script>

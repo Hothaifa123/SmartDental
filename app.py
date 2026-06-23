@@ -285,3 +285,16 @@ def upload_watermark():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
+
+@app.route('/api/reload-drugs', methods=['POST'])
+@login_required
+def reload_drugs():
+    if not current_user.is_admin:
+        return jsonify({'error':'Unauthorized'}), 403
+    db = get_db()
+    db.query(Drug).delete()
+    from data.drug_database import ALL_DRUGS
+    for d in ALL_DRUGS:
+        db.add(Drug(**d))
+    db.commit()
+    return jsonify({'status':'ok', 'count': len(ALL_DRUGS)})
