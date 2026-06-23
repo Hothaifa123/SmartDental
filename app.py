@@ -40,7 +40,6 @@ def load_user(uid):
 def inject_user():
     return dict(current_user=current_user)
 
-# ========== تسجيل دخول وخروج ==========
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -59,7 +58,6 @@ def logout():
     logout_user()
     return redirect('/login')
 
-# ========== تسجيل حساب جديد ==========
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'POST':
@@ -84,7 +82,6 @@ def index():
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-# ========== API ==========
 @app.route('/api/settings', methods=['GET','POST'])
 @login_required
 def settings():
@@ -107,25 +104,45 @@ def drugs():
     db = get_db()
     return jsonify([{'id':d.id,'trade_name':d.trade_name,'category':d.category,'admin_route':d.admin_route,'adult_dose':d.adult_dose,'child_dose':d.child_dose,'frequency':d.frequency,'duration':d.duration,'notes':d.notes} for d in db.query(Drug).all()])
 
+# --- تم إضافة تعديل وحذف المريض ---
 @app.route('/api/patients', methods=['GET','POST'])
 @login_required
 def patients():
     db = get_db()
     if request.method == 'POST':
         d = request.json
-        db.add(Patient(name=d['name'], age=d.get('age'), gender=d.get('gender'), phone=d.get('phone'), weight=d.get('weight'), chronic_diseases=d.get('chronic_diseases'), allergies=d.get('allergies'), chronic_drugs=d.get('chronic_drugs'), doctor_id=current_user.id))
-        db.commit()
-        return jsonify({'status':'ok'})
+        p = Patient(name=d['name'], age=d.get('age'), gender=d.get('gender'), phone=d.get('phone'), weight=d.get('weight'), chronic_diseases=d.get('chronic_diseases'), allergies=d.get('allergies'), chronic_drugs=d.get('chronic_drugs'), doctor_id=current_user.id)
+        db.add(p); db.commit()
+        return jsonify({'status':'ok', 'id':p.id}), 201
     return jsonify([{'id':p.id,'name':p.name,'age':p.age,'gender':p.gender,'phone':p.phone,'weight':p.weight,'chronic_diseases':p.chronic_diseases,'chronic_drugs':p.chronic_drugs,'allergies':p.allergies} for p in db.query(Patient).filter_by(doctor_id=current_user.id).all()])
 
-@app.route('/api/ai/analyze', methods=['POST'])
+@app.route('/api/patients/<int:pid>', methods=['PUT','DELETE'])
 @login_required
-def ai():
-    from utils.gemini_helper import analyze_case
-    d = request.json
-    result = analyze_case(d['symptoms'], d.get('age',''), d.get('gender',''), d.get('chronic',''), d.get('allergies',''))
-    return jsonify({'result': result})
+def patient_update_delete(pid):
+    db = get_db()
+    p = db.query(Patient).filter_by(id=pid, doctor_id=current_user.id).first()
+    if not p:
+        return jsonify({'error': 'Patient not found'}), 404
+    
+    if request.method == 'PUT':
+        data = request.json
+        p.name = data.get('name', p.name)
+        p.age = data.get('age', p.age)
+        p.gender = data.get('gender', p.gender)
+        p.phone = data.get('phone', p.phone)
+        p.weight = data.get('weight', p.weight)
+        p.chronic_diseases = data.get('chronic_diseases', p.chronic_diseases)
+        p.allergies = data.get('allergies', p.allergies)
+        p.chronic_drugs = data.get('chronic_drugs', p.chronic_drugs)
+        db.commit()
+        return jsonify({'status':'updated'})
+    
+    elif request.method == 'DELETE':
+        db.delete(p)
+        db.commit()
+        return jsonify({'status':'deleted'})
 
+# --- تم إصلاح PDF لجميع المستخدمين ---
 @app.route('/api/generate-pdf', methods=['POST'])
 @login_required
 def pdf():
@@ -133,11 +150,29 @@ def pdf():
         d = request.json
         db = get_db()
         user = db.query(User).get(current_user.id)
-        doctor = {'name':user.doctor_name,'phone':user.doctor_phone,'specialty':user.doctor_specialty,'clinic':user.clinic_name,'address':user.clinic_address,'logo':user.logo_path,'watermark':user.watermark_path}
+        # استخدام قيم افتراضية إذا لم يملأ الطبيب بياناته
+        doctor = {
+            'name': user.doctor_name or user.username,
+            'phone': user.doctor_phone or '',
+            'specialty': user.doctor_specialty or '',
+            'clinic': user.clinic_name or 'Dental Clinic',
+            'address': user.clinic_address or '',
+            'logo': user.logo_path,
+            'watermark': user.watermark_path
+        }
         pdf_bytes = generate_pdf_bytes(d.get('patient',{}), d.get('drugs',[]), d.get('diagnosis',''), d.get('notes',''), doctor)
         return Response(pdf_bytes, mimetype='application/pdf', headers={'Content-Disposition':'attachment;filename=rx.pdf'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# --- باقي الـ API ---
+@app.route('/api/ai/analyze', methods=['POST'])
+@login_required
+def ai():
+    from utils.gemini_helper import analyze_case
+    d = request.json
+    result = analyze_case(d['symptoms'], d.get('age',''), d.get('gender',''), d.get('chronic',''), d.get('allergies',''))
+    return jsonify({'result': result})
 
 @app.route('/api/whatsapp-link', methods=['POST'])
 @login_required
