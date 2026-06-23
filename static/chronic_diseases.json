@@ -1,0 +1,14 @@
+{
+  "Hypertension": ["Amlodipine", "Lisinopril", "Losartan", "Atenolol"],
+  "Diabetes": ["Metformin", "Insulin", "Glibenclamide"],
+  "Asthma": ["Salbutamol Inhaler", "Budesonide", "Montelukast"],
+  "Cardiac Disease": ["Aspirin", "Clopidogrel", "Atorvastatin"],
+  "Peptic Ulcer": ["Omeprazole", "Pantoprazole"],
+  "Epilepsy": ["Carbamazepine", "Valproic Acid", "Phenytoin"],
+  "Thyroid Disorder": ["Levothyroxine", "Carbimazole"],
+  "Renal Impairment": ["Furosemide", "Allopurinol"],
+  "Liver Disease": ["Ursodeoxycholic Acid"],
+  "Depression": ["Sertraline", "Escitalopram"],
+  "Allergy/Rhinitis": ["Cetirizine", "Loratadine", "Fexofenadine"],
+  "Pregnancy": []
+}
