@@ -53,16 +53,16 @@
             <p class="text-teal-200 text-xs" id="s-clinic">Clinic</p>
         </div>
         <nav>
-            <button class="nav-item active" data-v="rx" onclick="closeSidebar()"><i data-lucide="zap"></i> Instant Rx</button>
-            <button class="nav-item" data-v="patients" onclick="closeSidebar()"><i data-lucide="users"></i> Patients</button>
-            <button class="nav-item" data-v="ai" onclick="closeSidebar()"><i data-lucide="sparkles"></i> AI Assistant</button>
-            <button class="nav-item" data-v="library" onclick="closeSidebar()"><i data-lucide="pill"></i> Drug Library</button>
-            <button class="nav-item" data-v="ready" onclick="closeSidebar()"><i data-lucide="clipboard-list"></i> Ready Rx</button>
-            <button class="nav-item" data-v="emergency" onclick="closeSidebar()"><i data-lucide="siren"></i> Emergencies</button>
-            <button class="nav-item" data-v="settings" onclick="closeSidebar()"><i data-lucide="settings"></i> Settings</button>
+            <button class="nav-item active" data-v="rx" ><i data-lucide="zap"></i> Instant Rx</button>
+            <button class="nav-item" data-v="patients" ><i data-lucide="users"></i> Patients</button>
+            <button class="nav-item" data-v="ai" ><i data-lucide="sparkles"></i> AI Assistant</button>
+            <button class="nav-item" data-v="library" ><i data-lucide="pill"></i> Drug Library</button>
+            <button class="nav-item" data-v="ready" ><i data-lucide="clipboard-list"></i> Ready Rx</button>
+            <button class="nav-item" data-v="emergency" ><i data-lucide="siren"></i> Emergencies</button>
+            <button class="nav-item" data-v="settings" ><i data-lucide="settings"></i> Settings</button>
             {% if current_user.is_admin %}
-            <button class="nav-item" data-v="admin-drugs" onclick="closeSidebar()"><i data-lucide="shield"></i> Manage Drugs</button>
-            <button class="nav-item" data-v="admin-users" onclick="closeSidebar()"><i data-lucide="user-cog"></i> Manage Users</button>
+            <button class="nav-item" data-v="admin-drugs" ><i data-lucide="shield"></i> Manage Drugs</button>
+            <button class="nav-item" data-v="admin-users" ><i data-lucide="user-cog"></i> Manage Users</button>
             {% endif %}
             <a href="/logout" class="nav-item danger"><i data-lucide="log-out"></i> Logout</a>
         </nav>
