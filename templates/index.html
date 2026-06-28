@@ -11,11 +11,8 @@
         :root{--teal:#0d9488;--bg:#f0fdfa;--red:#ef4444;--amber:#f59e0b}
         *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:#1a2e2b}
         .app{display:flex;min-height:100vh}
-        .sidebar{width:260px;background:linear-gradient(180deg,#0f766e,#115e59);color:#fff;padding:20px 14px;position:fixed;left:0;top:0;bottom:0;z-index:40;overflow-y:auto;transition:transform 0.3s ease}
-        .sidebar.hidden{transform:translateX(-100%)}
-        .main{margin-left:260px;flex:1;padding:20px;transition:margin-left 0.3s ease}
-        .main.full{margin-left:0}
-        .toggle-btn{position:fixed;top:15px;left:15px;z-index:50;background:#0f766e;color:white;border:none;border-radius:12px;padding:10px;cursor:pointer;display:none}
+        .sidebar{width:260px;background:linear-gradient(180deg,#0f766e,#115e59);color:#fff;padding:20px 14px;position:fixed;left:0;top:0;bottom:0;z-index:30;overflow-y:auto}
+        .main{margin-left:260px;flex:1;padding:20px}
         .nav-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;cursor:pointer;transition:.2s;margin:3px 0;color:#ccf0e9;font-size:14px;border:none;background:none;width:100%;text-align:left}
         .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.15);color:#fff}
         .nav-item.danger{color:#fca5a5}
@@ -35,34 +32,28 @@
         .chip.active{background:var(--teal);color:#fff;border-color:var(--teal)}
         .drug-selected{background:#e0f2fe!important;border-color:#0d9488!important}
         .drug-warning{background:#fee2e2!important;border-color:#ef4444!important}
-        @media(max-width:768px){
-            .sidebar{transform:translateX(-100%)}
-            .sidebar.open{transform:translateX(0)}
-            .main{margin-left:0!important}
-            .toggle-btn{display:block}
-        }
+        @media(max-width:768px){.sidebar{position:static;width:100%}.main{margin-left:0}.grid-2,.grid-3{grid-template-columns:1fr}}
     </style>
 </head>
 <body>
-<button class="toggle-btn" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
 <div class="app">
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar">
         <div class="mb-4 px-2 text-center">
             <img id="s-logo" src="" class="w-16 h-16 rounded-2xl mx-auto mb-2 object-cover" style="display:none">
             <h2 class="font-extrabold text-lg">🦷 Smart Dental</h2>
             <p class="text-teal-200 text-xs" id="s-clinic">Clinic</p>
         </div>
         <nav>
-            <button class="nav-item active" data-v="rx" ><i data-lucide="zap"></i> Instant Rx</button>
-            <button class="nav-item" data-v="patients" ><i data-lucide="users"></i> Patients</button>
-            <button class="nav-item" data-v="ai" ><i data-lucide="sparkles"></i> AI Assistant</button>
-            <button class="nav-item" data-v="library" ><i data-lucide="pill"></i> Drug Library</button>
-            <button class="nav-item" data-v="ready" ><i data-lucide="clipboard-list"></i> Ready Rx</button>
-            <button class="nav-item" data-v="emergency" ><i data-lucide="siren"></i> Emergencies</button>
-            <button class="nav-item" data-v="settings" ><i data-lucide="settings"></i> Settings</button>
+            <button class="nav-item active" data-v="rx"><i data-lucide="zap"></i> Instant Rx</button>
+            <button class="nav-item" data-v="patients"><i data-lucide="users"></i> Patients</button>
+            <button class="nav-item" data-v="ai"><i data-lucide="sparkles"></i> AI Assistant</button>
+            <button class="nav-item" data-v="library"><i data-lucide="pill"></i> Drug Library</button>
+            <button class="nav-item" data-v="ready"><i data-lucide="clipboard-list"></i> Ready Rx</button>
+            <button class="nav-item" data-v="emergency"><i data-lucide="siren"></i> Emergencies</button>
+            <button class="nav-item" data-v="settings"><i data-lucide="settings"></i> Settings</button>
             {% if current_user.is_admin %}
-            <button class="nav-item" data-v="admin-drugs" ><i data-lucide="shield"></i> Manage Drugs</button>
-            <button class="nav-item" data-v="admin-users" ><i data-lucide="user-cog"></i> Manage Users</button>
+            <button class="nav-item" data-v="admin-drugs"><i data-lucide="shield"></i> Manage Drugs</button>
+            <button class="nav-item" data-v="admin-users"><i data-lucide="user-cog"></i> Manage Users</button>
             {% endif %}
             <a href="/logout" class="nav-item danger"><i data-lucide="log-out"></i> Logout</a>
         </nav>
@@ -72,13 +63,57 @@
             <p>✉️ hothaifaalhamdani123@gmail.com</p>
         </div>
     </aside>
-    <main class="main" id="main-content">
-        <!-- كل الأقسام كما هي بدون تغيير (Instant Rx, Preview, Patients, AI, Library, Ready Rx, Emergencies, Settings, Admin panels) -->
-        <!-- لتجنب التكرار، سأشير إلى أنها موجودة كما في آخر نسخة ناجحة -->
-        <!-- يجب نسخ محتوى الأقسام من الإصدار السابق -->
-        <!-- سيتم تضمين الأقسام المهمة فقط هنا -->
-        <section id="settings" class="view">
-            <h2 class="text-xl font-bold mb-3">⚙️ Settings</h2>
+
+    <main class="main">
+        <!-- Instant Rx -->
+        <section id="rx" class="view active">
+            <h2 class="text-xl font-bold mb-3">📝 Instant Prescription</h2>
+            <div class="grid-2">
+                <div class="card"><h3 class="font-bold mb-2">👤 Patient</h3>
+                    <select id="rx-patient" class="input mb-2" onchange="fillPatient()"><option value="">Select patient</option></select>
+                    <input id="rx-name" class="input mb-2" placeholder="Name">
+                    <div class="grid-2 mb-2"><input id="rx-age" class="input" type="number" placeholder="Age"><select id="rx-gender" class="input"><option>Male</option><option>Female</option></select></div>
+                    <input id="rx-weight" class="input mb-2" type="number" placeholder="Weight (kg)">
+                    <input id="rx-phone" class="input mb-2" placeholder="Phone (for WhatsApp)">
+                    <input id="rx-diagnosis" class="input" placeholder="Diagnosis">
+                </div>
+                <div class="card"><h3 class="font-bold mb-2">💊 Selected</h3><div id="rx-list" class="min-h-[80px]"></div><p id="rx-empty" class="text-gray-400 text-center">No drugs added</p></div>
+            </div>
+            <div class="mt-3"><select id="rx-cat" class="input" onchange="showCatDrugs()"><option value="">Choose category</option></select></div>
+            <div id="cat-drugs" class="grid-3 mt-2"></div>
+            <div class="flex gap-2 mt-4"><button class="btn" onclick="previewRx()">👁 Preview</button><button class="btn" onclick="downloadPDF()">📥 PDF</button><button class="btn btn-amber" onclick="sendWhatsApp()">💬 WhatsApp</button><button class="btn" style="background:#6366f1" onclick="saveAsReady()">💾 Save Ready</button></div>
+        </section>
+        <!-- Preview -->
+        <section id="preview" class="view"><h2 class="text-xl font-bold mb-3">📄 Preview</h2><div id="rx-paper" class="rx-paper"></div><div class="flex gap-2 mt-4"><button class="btn" onclick="downloadPDF()">📥 PDF</button><button class="btn" style="background:#333" onclick="window.print()">🖨 Print</button><button class="btn" style="background:#6366f1" onclick="switchV('rx')">← Back</button></div></section>
+        <!-- Patients -->
+        <section id="patients" class="view"><h2 class="text-xl font-bold mb-3">👥 Patients</h2>
+            <div class="card"><h3 class="font-bold mb-2">Add Patient</h3>
+                <input id="p-name" class="input mb-2" placeholder="Full Name*">
+                <div class="grid-2 mb-2"><input id="p-age" class="input" type="number" placeholder="Age"><select id="p-gender" class="input"><option>Male</option><option>Female</option></select></div>
+                <input id="p-phone" class="input mb-2" placeholder="Phone"><input id="p-weight" class="input mb-2" type="number" placeholder="Weight">
+                <h3 class="font-bold mt-3 mb-2">Chronic Diseases</h3>
+                <div id="disease-chips" class="flex flex-wrap gap-2 mb-3"></div>
+                <h3 class="font-bold mt-3 mb-2">Chronic Medications</h3>
+                <select id="p-drug-select" class="input mb-2"><option value="">Select medication or type below</option></select>
+                <input id="p-drug-input" class="input mb-2" placeholder="Add custom medication (press Enter)">
+                <div id="drug-chips" class="flex flex-wrap gap-2 mb-3"></div>
+                <input id="p-allergies" class="input mb-2" placeholder="Allergies">
+                <button class="btn" onclick="savePatient()">Save Patient</button>
+            </div>
+            <div id="patients-list" class="space-y-2"></div></section>
+        <!-- AI -->
+        <section id="ai" class="view"><h2 class="text-xl font-bold mb-3">🤖 AI Analysis</h2>
+            <div class="card"><textarea id="ai-symptoms" class="input mb-3" rows="3" placeholder="Symptoms..."></textarea>
+                <div class="grid-2 mb-3"><input id="ai-age" class="input" type="number" placeholder="Age"><select id="ai-gender" class="input"><option>Male</option><option>Female</option></select></div>
+                <button class="btn" onclick="runAI()">🔍 Analyze</button><div id="ai-result" class="mt-3 bg-gray-50 rounded-xl p-4 hidden"></div></div></section>
+        <!-- Library -->
+        <section id="library" class="view"><h2 class="text-xl font-bold mb-3">💊 Drug Library</h2><select id="lib-cat" class="input mb-3" onchange="showLib()"><option>All</option></select><div id="lib-drugs" class="grid-3"></div></section>
+        <!-- Ready Rx -->
+        <section id="ready" class="view"><h2 class="text-xl font-bold mb-3">📋 Ready Prescriptions</h2><div id="ready-grid" class="grid-2"></div></section>
+        <!-- Emergencies -->
+        <section id="emergency" class="view"><h2 class="text-xl font-bold mb-3">🚨 Emergency Protocols</h2><div id="emergency-grid" class="space-y-2"></div></section>
+        <!-- Settings -->
+        <section id="settings" class="view"><h2 class="text-xl font-bold mb-3">⚙️ Settings</h2>
             <div class="card max-w-md">
                 <h3 class="font-bold mb-2">🖼 Logo</h3><input type="file" id="s-logo-file" accept="image/*" class="input mb-2" onchange="uploadLogo()">
                 <img id="s-logo-preview" src="" class="w-20 h-20 rounded-2xl object-cover mb-2" style="display:none">
@@ -92,46 +127,479 @@
                 <h3 class="font-bold mt-4 mb-2">🔐 Change Password</h3>
                 <input id="s-new-pass" type="password" class="input mb-2" placeholder="New password">
                 <button class="btn" onclick="saveSettings()">💾 Save</button>
+            </div></section>
+        {% if current_user.is_admin %}
+        <section id="admin-drugs" class="view"><h2 class="text-xl font-bold mb-3">🛠 Manage Drugs</h2>
+            <div class="card"><h3 class="font-bold mb-2">Add Drug</h3>
+                <div class="grid-2"><input id="ad-trade" class="input" placeholder="Trade Name*"><input id="ad-generic" class="input" placeholder="Generic Name"></div>
+                <select id="ad-cat" class="input my-2"></select>
+                <div class="grid-2"><input id="ad-adult" class="input" placeholder="Adult dose"><input id="ad-child" class="input" placeholder="Child dose"></div>
+                <button class="btn mt-2" onclick="addDrug()">Add Drug</button>
+                <button class="btn mt-2" style="background:#6366f1" onclick="reloadDrugs()">🔄 Reload All Drugs from Database</button>
             </div>
-        </section>
-        <!-- باقي الأقسام تكرر كما في الملف الكامل السابق -->
+            <div id="admin-drugs-list" class="space-y-1 mt-3"></div></section>
+        <section id="admin-users" class="view"><h2 class="text-xl font-bold mb-3">👥 Manage Users</h2>
+            <div class="card"><h3 class="font-bold mb-2">Add User</h3>
+                <div class="grid-2 mb-2"><input id="um-username" class="input" placeholder="Username"><input id="um-password" type="password" class="input" placeholder="Password"></div>
+                <button class="btn" onclick="addUserMgmt()">Add User</button></div>
+            <div id="users-list" class="space-y-2"></div></section>
+        {% endif %}
     </main>
 </div>
+
 <script>
-// وظائف القائمة الجانبية
-function toggleSidebar(){
-    document.getElementById('sidebar').classList.toggle('open');
+// ========== GLOBAL VARIABLES ==========
+let D=[],P=[],RX=[],RD=[],SET={},EM=[],USERS=[],DISEASES={},SELECTED_DRUG=null,PT_DISEASES=[],PT_DRUGS=[];
+let isAdmin={{ 'true' if current_user.is_admin else 'false' }};
+
+// ========== API HELPER ==========
+async function api(u,o={}){const r=await fetch(u,o);return r.json()}
+
+// ========== MAIN LOAD FUNCTION ==========
+async function load(){
+    try{
+        D=await api('/api/drugs');
+        P=await api('/api/patients');
+        SET=await api('/api/settings');
+        RD=await api('/api/prescriptions?ready=1');
+        EM=await api('/api/emergencies');
+        if(isAdmin) USERS=await api('/api/admin/users');
+    }catch(e){console.error(e)}
+
+    document.getElementById('s-clinic').textContent=SET.clinic||'Clinic';
+    document.getElementById('s-name').value=SET.name||'';
+    document.getElementById('s-phone').value=SET.phone||'';
+    document.getElementById('s-specialty').value=SET.specialty||'';
+    document.getElementById('s-clinic').value=SET.clinic||'';
+    document.getElementById('s-address').value=SET.address||'';
+
+    if(SET.logo){
+        document.getElementById('s-logo').src=SET.logo;
+        document.getElementById('s-logo').style.display='block';
+        document.getElementById('s-logo-preview').src=SET.logo;
+        document.getElementById('s-logo-preview').style.display='block';
+    }
+    if(SET.watermark){
+        document.getElementById('s-watermark-preview').src=SET.watermark;
+        document.getElementById('s-watermark-preview').style.display='block';
+    }
+
+    let cats=[...new Set(D.map(d=>d.category))];
+    document.getElementById('rx-cat').innerHTML='<option value="">Choose category</option>'+cats.map(c=>`<option>${c}</option>`).join('');
+    document.getElementById('lib-cat').innerHTML='<option>All</option>'+cats.map(c=>`<option>${c}</option>`).join('');
+    if(isAdmin) document.getElementById('ad-cat').innerHTML=cats.map(c=>`<option>${c}</option>`).join('');
+    document.getElementById('rx-patient').innerHTML='<option value="">Select patient</option>'+P.map(p=>`<option value="${p.id}">${p.name} (${p.age}y)</option>`).join('');
+
+    renderPatients();
+    renderReady();
+    renderEmergencies();
+    if(isAdmin){renderAdminDrugs();renderUsers();}
+    updateDrugSuggestions();
+    lucide.createIcons();
 }
-function closeSidebar(){
-    if(window.innerWidth <= 768){
-        document.getElementById('sidebar').classList.remove('open');
+
+// ========== DRUG SELECTION ==========
+function showCatDrugs(){
+    let cat=document.getElementById('rx-cat').value;
+    if(!cat){document.getElementById('cat-drugs').innerHTML='';return}
+    document.getElementById('cat-drugs').innerHTML=D.filter(d=>d.category===cat).map(d=>`
+        <div class="card text-sm cursor-pointer hover:shadow-md ${SELECTED_DRUG&&SELECTED_DRUG.id===d.id?'drug-selected':''}" onclick="selectDrug(${d.id})">
+            <b>${d.trade_name}</b><br>${d.adult_dose} ${d.frequency}
+        </div>`).join('');
+}
+
+function selectDrug(id){
+    SELECTED_DRUG=D.find(x=>x.id===id);
+    showCatDrugs();
+    let existingBtn=document.getElementById('confirm-add-btn');
+    if(existingBtn) existingBtn.remove();
+    let btn=document.createElement('button');
+    btn.id='confirm-add-btn';
+    btn.className='btn mt-3';
+    btn.textContent='✅ Add '+SELECTED_DRUG.trade_name+' to Rx';
+    btn.onclick=addSelectedDrug;
+    document.getElementById('cat-drugs').after(btn);
+}
+
+async function addSelectedDrug(){
+    if(!SELECTED_DRUG)return;
+    let drug={...SELECTED_DRUG};
+    let age=document.getElementById('rx-age').value;
+    let weight=document.getElementById('rx-weight').value;
+    let pid=document.getElementById('rx-patient').value;
+
+    if(pid){
+        let chk=await api('/api/check-interactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drug_name:drug.trade_name,patient_id:pid})});
+        if(chk.warnings.length>0){
+            let msg=chk.warnings.map(w=>`${w.severity}: ${w.desc}`).join('\n');
+            alert('⚠️ Interaction Warning:\n'+msg);
+            drug.warning=true;
+        }
+    }
+    if(age && (age<=12 || age>=65)){
+        let adj=await api('/api/auto-dose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drug:drug,age:age,weight:weight})});
+        drug={...drug,...adj};
+    }
+    RX.push(drug);
+    renderRxList();
+    SELECTED_DRUG=null;
+    document.getElementById('cat-drugs').innerHTML='';
+    let btn=document.getElementById('confirm-add-btn');
+    if(btn)btn.remove();
+}
+
+function renderRxList(){
+    document.getElementById('rx-list').innerHTML=RX.map((d,i)=>`
+        <div class="flex justify-between items-center rounded-xl px-3 py-2 text-sm ${d.warning?'drug-warning':'bg-gray-50'}">
+            <span>${d.trade_name} - ${d.dosage||d.adult_dose} ${d.frequency} ${d.note?`<span class="text-xs text-red-600">(${d.note})</span>`:''}</span>
+            <button class="text-red-500" onclick="RX.splice(${i},1);renderRxList()">✕</button>
+        </div>`).join('');
+    document.getElementById('rx-empty').classList.toggle('hidden',RX.length>0);
+}
+
+// ========== PATIENT HANDLING ==========
+function fillPatient(){
+    let id=document.getElementById('rx-patient').value;
+    if(!id)return;
+    let p=P.find(x=>x.id==id);
+    if(p){
+        document.getElementById('rx-name').value=p.name;
+        document.getElementById('rx-age').value=p.age;
+        document.getElementById('rx-gender').value=p.gender;
+        document.getElementById('rx-weight').value=p.weight||'';
+        document.getElementById('rx-phone').value=p.phone||'';
     }
 }
-// إصلاح دالة الحفظ
-async function saveSettings(){
-    let data = {
-        name: document.getElementById('s-name').value,
-        phone: document.getElementById('s-phone').value,
-        specialty: document.getElementById('s-specialty').value,
-        clinic: document.getElementById('s-clinic').value,
-        address: document.getElementById('s-address').value
+
+function renderPatients(){
+    document.getElementById('patients-list').innerHTML=P.map(p=>`
+        <div class="card text-sm flex justify-between items-center">
+            <div><b>${p.name}</b> - ${p.age}y - ${p.gender} - 📞${p.phone||'-'}</div>
+            <div class="flex gap-2">
+                <button class="text-teal-600 text-xs font-bold" onclick="editPatient(${p.id})">✏️ Edit</button>
+                <button class="text-red-500 text-xs font-bold" onclick="deletePatient(${p.id})">🗑️ Delete</button>
+            </div>
+        </div>`).join('');
+}
+
+function editPatient(id){
+    let p=P.find(x=>x.id==id);
+    if(!p)return;
+    document.getElementById('p-name').value=p.name;
+    document.getElementById('p-age').value=p.age;
+    document.getElementById('p-gender').value=p.gender;
+    document.getElementById('p-phone').value=p.phone||'';
+    document.getElementById('p-weight').value=p.weight||'';
+    document.getElementById('p-allergies').value=p.allergies||'';
+    PT_DISEASES=JSON.parse(p.chronic_diseases||'[]');
+    PT_DRUGS=JSON.parse(p.chronic_drugs||'[]');
+    document.querySelectorAll('#disease-chips .chip').forEach(c=>c.classList.toggle('active',PT_DISEASES.includes(c.dataset.disease)));
+    renderDrugChips();
+    switchV('patients');
+    let hidden=document.getElementById('edit-patient-id');
+    if(!hidden){
+        hidden=document.createElement('input');
+        hidden.type='hidden';
+        hidden.id='edit-patient-id';
+        document.getElementById('patients').querySelector('.card').appendChild(hidden);
+    }
+    hidden.value=p.id;
+}
+
+async function deletePatient(id){
+    if(confirm('Delete this patient?')){
+        await api('/api/patients/'+id,{method:'DELETE'});
+        load();
+    }
+}
+
+async function savePatient(){
+    let name=document.getElementById('p-name').value;
+    if(!name)return alert('Name required');
+    let diseases=Array.from(document.querySelectorAll('#disease-chips .chip.active')).map(c=>c.dataset.disease);
+    let data={
+        name:name,
+        age:document.getElementById('p-age').value,
+        gender:document.getElementById('p-gender').value,
+        phone:document.getElementById('p-phone').value,
+        weight:document.getElementById('p-weight').value,
+        chronic_diseases:JSON.stringify(diseases),
+        chronic_drugs:JSON.stringify(PT_DRUGS),
+        allergies:document.getElementById('p-allergies').value
     };
-    let pass = document.getElementById('s-new-pass').value;
-    if(pass) data.password = pass;
-    let res = await fetch('/api/settings', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-    if(res.ok){
-        alert('Settings saved successfully!');
-        load(); // إعادة تحميل الإعدادات
-    } else {
-        alert('Failed to save settings.');
+    let editId=document.getElementById('edit-patient-id')?.value;
+    if(editId){
+        await api('/api/patients/'+editId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+        document.getElementById('edit-patient-id').value='';
+    }else{
+        await api('/api/patients',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    }
+    document.querySelectorAll('#patients input').forEach(i=>i.value='');
+    PT_DISEASES=[];PT_DRUGS=[];
+    renderDiseaseChips();renderDrugChips();
+    load();
+}
+
+// ========== PRESCRIPTION ACTIONS ==========
+function previewRx(){
+    let p={name:document.getElementById('rx-name').value||'Patient',age:document.getElementById('rx-age').value||'',gender:document.getElementById('rx-gender').value||'Male'};
+    let diag=document.getElementById('rx-diagnosis').value||'';
+    document.getElementById('rx-paper').innerHTML=`
+        <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0d9488;padding-bottom:8px;margin-bottom:12px">
+            <div><h3 style="font-size:18px;font-weight:800">${SET.clinic||'Dental Clinic'}</h3></div>
+            <div style="text-align:right"><p style="font-weight:700">${SET.name||'Dr.'}</p><p style="font-size:11px">${SET.phone||''}</p></div>
+        </div>
+        <p><b>Patient:</b> ${p.name} | <b>Age:</b> ${p.age} | <b>Gender:</b> ${p.gender}</p>
+        ${diag?`<p><b>Diagnosis:</b> ${diag}</p>`:''}
+        <p><b>Date:</b> ${new Date().toLocaleDateString('en-GB')}</p>
+        <h3 style="color:#c00;margin-top:10px;font-weight:800">Rx:</h3>
+        ${RX.length?RX.map(d=>`<p style="margin:4px 0">- ${d.trade_name} ${d.dosage||d.adult_dose} ${d.frequency}</p>`).join(''):'<p>No medications</p>'}
+        <div style="margin-top:30px;text-align:right;border-top:1px solid #ccc;padding-top:8px"><p><i>Signature: ______________</i></p></div>`;
+    switchV('preview');
+}
+
+async function downloadPDF(){
+    let p={name:document.getElementById('rx-name').value||'Patient',age:document.getElementById('rx-age').value||'',gender:document.getElementById('rx-gender').value||'Male',phone:document.getElementById('rx-phone').value||''};
+    let res=await fetch('/api/generate-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient:p,drugs:RX.map(d=>({drug_name:d.trade_name,dosage:d.dosage||d.adult_dose,frequency:d.frequency})),diagnosis:document.getElementById('rx-diagnosis').value})});
+    if(!res.ok){alert('Error generating PDF');return}
+    let blob=await res.blob();
+    let a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='prescription.pdf';
+    a.click();
+}
+
+async function sendWhatsApp(){
+    let phone=document.getElementById('rx-phone').value.replace(/[^0-9]/g,'');
+    if(!phone)return alert('Enter patient phone number');
+    let name=document.getElementById('rx-name').value||'Patient';
+    window.open('https://wa.me/'+phone+'?text='+encodeURIComponent('Dear '+name+', your prescription from Dr. '+SET.name+'.'),'_blank');
+}
+
+async function saveAsReady(){
+    if(!RX.length)return alert('Add drugs first');
+    let name=prompt('Name for ready prescription:');
+    if(!name)return;
+    await api('/api/prescriptions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugs:RX.map(d=>({drug_name:d.trade_name,dosage:d.dosage||d.adult_dose,frequency:d.frequency})),ready_name:name,is_global:isAdmin?confirm('Make global? (visible to all users)'):false})});
+    alert('Saved!');
+    load();
+}
+
+// ========== AI ==========
+async function runAI(){
+    let s=document.getElementById('ai-symptoms').value;
+    if(!s)return;
+    document.getElementById('ai-result').classList.remove('hidden');
+    document.getElementById('ai-result').innerHTML='<p class="text-gray-500">Analyzing...</p>';
+    let res=await api('/api/ai/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symptoms:s,age:document.getElementById('ai-age').value,gender:document.getElementById('ai-gender').value})});
+    document.getElementById('ai-result').innerHTML=`<pre style="white-space:pre-wrap;font-size:13px">${res.result}</pre>`;
+}
+
+// ========== LIBRARY ==========
+function showLib(){
+    let cat=document.getElementById('lib-cat').value;
+    let list=cat==='All'?D:D.filter(d=>d.category===cat);
+    document.getElementById('lib-drugs').innerHTML=list.map(d=>`<div class="card text-xs"><b>${d.trade_name}</b><br>${d.adult_dose} ${d.frequency}</div>`).join('');
+}
+
+// ========== READY RX ==========
+function renderReady(){
+    document.getElementById('ready-grid').innerHTML=RD.map(r=>{
+        let items=JSON.parse(r.items_json||'[]');
+        return`<div class="card"><h4 class="font-bold">${r.ready_name||'Rx'}</h4>${items.map(i=>`<p class="text-xs">- ${i.drug_name}</p>`).join('')}<button class="btn mt-2 text-xs" onclick="useReady('${r.id}')">Use</button>${isAdmin&&!r.is_global_template?`<button class="btn mt-1 text-xs" style="background:#f59e0b" onclick="promoteTemplate(${r.id})">Make Global</button>`:''}</div>`;
+    }).join('');
+}
+
+async function useReady(id){
+    let r=RD.find(x=>x.id==id);
+    if(!r)return;
+    RX=JSON.parse(r.items_json||'[]');
+    renderRxList();
+    switchV('rx');
+}
+
+async function promoteTemplate(id){
+    await api('/api/promote-template',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    alert('Promoted!');
+    load();
+}
+
+// ========== EMERGENCIES ==========
+function renderEmergencies(){
+    document.getElementById('emergency-grid').innerHTML=EM.map(e=>`
+        <details class="card">
+            <summary class="font-bold cursor-pointer">🚨 ${e.name}</summary>
+            <p class="text-sm mt-2"><b>Symptoms:</b> ${e.symptoms}</p>
+            <p class="text-sm mt-1"><b>Procedure:</b> ${e.procedure.replace(/\n/g,'<br>')}</p>
+            <p class="text-sm mt-1"><b>Meds:</b> ${e.medications}</p>
+        </details>`).join('');
+}
+
+// ========== SETTINGS ==========
+async function saveSettings(){
+    let data={
+        name:document.getElementById('s-name').value,
+        phone:document.getElementById('s-phone').value,
+        specialty:document.getElementById('s-specialty').value,
+        clinic:document.getElementById('s-clinic').value,
+        address:document.getElementById('s-address').value
+    };
+    let pass=document.getElementById('s-new-pass').value;
+    if(pass)data.password=pass;
+    await api('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    alert('Settings saved!');
+    load();
+}
+
+async function uploadLogo(){
+    let f=document.getElementById('s-logo-file').files[0];
+    if(!f)return;
+    let fd=new FormData();fd.append('logo',f);
+    let res=await fetch('/api/upload-logo',{method:'POST',body:fd});
+    let data=await res.json();
+    if(data.path){
+        document.getElementById('s-logo-preview').src=data.path;
+        document.getElementById('s-logo-preview').style.display='block';
+        load();
     }
 }
-// ... باقي الدوال (load, uploadLogo, uploadWatermark, ...) تبقى كما هي من الإصدار السابق
-// يجب دمجها كاملة من الملف السابق
+
+async function uploadWatermark(){
+    let f=document.getElementById('s-watermark-file').files[0];
+    if(!f)return;
+    let fd=new FormData();fd.append('watermark',f);
+    let res=await fetch('/api/upload-watermark',{method:'POST',body:fd});
+    let data=await res.json();
+    if(data.path){
+        document.getElementById('s-watermark-preview').src=data.path;
+        document.getElementById('s-watermark-preview').style.display='block';
+        load();
+    }
+}
+
+// ========== ADMIN DRUGS ==========
+async function addDrug(){
+    let d={
+        trade_name:document.getElementById('ad-trade').value,
+        category:document.getElementById('ad-cat').value,
+        generic_name:document.getElementById('ad-generic').value,
+        adult_dose:document.getElementById('ad-adult').value,
+        child_dose:document.getElementById('ad-child').value
+    };
+    if(!d.trade_name||!d.category)return alert('Name and category required');
+    await api('/api/drugs/manage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    document.querySelectorAll('#admin-drugs input').forEach(i=>i.value='');
+    load();
+}
+
+function renderAdminDrugs(){
+    document.getElementById('admin-drugs-list').innerHTML=D.map(d=>`
+        <div class="flex justify-between items-center bg-gray-50 rounded-xl px-3 py-1 text-xs">
+            <span>${d.trade_name} (${d.category})</span>
+            <button class="text-red-500" onclick="deleteDrug(${d.id})">✕</button>
+        </div>`).join('');
+}
+
+async function deleteDrug(id){
+    if(confirm('Delete this drug?')){
+        await api('/api/drugs/manage?id='+id,{method:'DELETE'});
+        load();
+    }
+}
+
+async function reloadDrugs(){
+    if(!confirm('This will delete all current drugs and reload from the master list. Continue?'))return;
+    let res=await api('/api/reload-drugs',{method:'POST'});
+    if(res.status==='ok'){alert('Reloaded '+res.count+' drugs');load();}
+    else{alert('Error: '+res.error);}
+}
+
+// ========== ADMIN USERS ==========
+function renderUsers(){
+    document.getElementById('users-list').innerHTML=USERS.map(u=>`
+        <div class="flex justify-between items-center bg-gray-50 rounded-xl px-3 py-2 text-sm">
+            <span><b>${u.username}</b> ${u.is_admin?'👑':''} <span class="text-xs ${u.is_active?'text-green-600':'text-red-600'}">${u.is_active?'Active':'Disabled'}</span></span>
+            <div class="flex gap-2">
+                <button class="text-xs ${u.is_active?'bg-red-100 text-red-700':'bg-green-100 text-green-700'} px-2 py-1 rounded" onclick="toggleUser(${u.id},${!u.is_active})">${u.is_active?'Disable':'Enable'}</button>
+                <button class="text-xs bg-red-200 text-red-700 px-2 py-1 rounded" onclick="deleteUser(${u.id})">Del</button>
+            </div>
+        </div>`).join('');
+}
+
+async function addUserMgmt(){
+    let n=document.getElementById('um-username').value;
+    let p=document.getElementById('um-password').value;
+    if(!n||!p)return alert('Fill all fields');
+    await api('/api/admin/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:n,password:p})});
+    document.getElementById('um-username').value='';
+    document.getElementById('um-password').value='';
+    load();
+}
+
+async function toggleUser(id,act){
+    await api('/api/admin/users',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,is_active:act})});
+    load();
+}
+
+async function deleteUser(id){
+    if(confirm('Delete this user?')){
+        await api('/api/admin/users?id='+id,{method:'DELETE'});
+        load();
+    }
+}
+
+// ========== CHRONIC DISEASES & MEDICATIONS ==========
+fetch('/static/chronic_diseases.json').then(r=>r.json()).then(d=>{DISEASES=d;renderDiseaseChips();});
+
+function renderDiseaseChips(){
+    let html='';
+    for(let d in DISEASES){
+        html+=`<span class="chip" data-disease="${d}" onclick="this.classList.toggle('active');setTimeout(updateDrugSuggestions,50)">${d}</span>`;
+    }
+    document.getElementById('disease-chips').innerHTML=html;
+}
+
+document.getElementById('p-drug-select').onchange=function(){
+    let val=this.value;
+    if(!val)return;
+    if(!PT_DRUGS.includes(val)){PT_DRUGS.push(val);renderDrugChips();}
+    this.value='';
+};
+
+document.getElementById('p-drug-input').onkeydown=function(e){
+    if(e.key==='Enter'){
+        e.preventDefault();
+        let val=this.value.trim();
+        if(val&&!PT_DRUGS.includes(val)){PT_DRUGS.push(val);renderDrugChips();}
+        this.value='';
+    }
+};
+
+function renderDrugChips(){
+    document.getElementById('drug-chips').innerHTML=PT_DRUGS.map((d,i)=>`<span class="chip active">${d} <button class="text-xs ml-1" onclick="PT_DRUGS.splice(${i},1);renderDrugChips()">✕</button></span>`).join('');
+}
+
+function updateDrugSuggestions(){
+    let selectedDiseases=Array.from(document.querySelectorAll('#disease-chips .chip.active')).map(c=>c.dataset.disease);
+    let allMeds=[];
+    selectedDiseases.forEach(d=>{if(DISEASES[d])allMeds=allMeds.concat(DISEASES[d]);});
+    allMeds=[...new Set(allMeds)];
+    document.getElementById('p-drug-select').innerHTML='<option value="">Select medication</option>'+allMeds.map(m=>`<option>${m}</option>`).join('');
+}
+
+// ========== NAVIGATION ==========
+function switchV(id){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.v===id));
+    if(id==='library')showLib();
+    lucide.createIcons();
+}
+
+document.querySelectorAll('.nav-item[data-v]').forEach(b=>b.onclick=()=>switchV(b.dataset.v));
+
+// ========== INITIAL LOAD ==========
+load();
 </script>
 </body>
 </html>
