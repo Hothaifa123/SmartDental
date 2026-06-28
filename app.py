@@ -19,9 +19,8 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 init_db()
 
-# بيانات أولية
 db = get_db()
-if db.query(User).filter_by(username='admin').first() is None:
+if db.query(User).filter_by(username='Hothaifa123').first() is None:
     db.add(User(username='Hothaifa123', password_hash=generate_password_hash('hothaifa112233'), is_admin=True, is_active=True, doctor_name=DEVELOPER_INFO['name'], doctor_phone=DEVELOPER_INFO['phone'], clinic_name=DEVELOPER_INFO['clinic']))
 if db.query(Drug).count() == 0:
     from data.drug_database import ALL_DRUGS
@@ -39,6 +38,10 @@ def load_user(uid):
 @app.context_processor
 def inject_user():
     return dict(current_user=current_user)
+
+@app.route('/splash')
+def splash():
+    return render_template('splash.html')
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -73,10 +76,6 @@ def register():
         return redirect('/login')
     return render_template('register.html')
 
-@app.route('/splash')
-def splash():
-    return render_template('splash.html')
-
 @app.route('/')
 @login_required
 def index():
@@ -86,30 +85,41 @@ def index():
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-@app.route('/api/settings', methods=['GET','POST'])
-@login_required
-def settings():
-    db = get_db()
-    if request.method == 'POST':
-        data = request.json
-        user = db.query(User).get(current_user.id)
-    print('GET settings:', user.doctor_name, user.logo_path)
-        for k in ['doctor_name','doctor_phone','doctor_specialty','clinic_name','clinic_address']:
-            if k in data: setattr(user, k, data[k])
-        if 'password' in data and data['password']:
-            user.password_hash = generate_password_hash(data['password'])
-        db.commit()
-        return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
-    u = db.query(User).get(current_user.id)
-    return jsonify({'name':u.doctor_name,'phone':u.doctor_phone,'specialty':u.doctor_specialty,'clinic':u.clinic_name,'address':u.clinic_address,'logo':u.logo_path,'photo':u.photo_path,'watermark':u.watermark_path})
-
+# API Drugs
 @app.route('/api/drugs')
 @login_required
 def drugs():
     db = get_db()
     return jsonify([{'id':d.id,'trade_name':d.trade_name,'category':d.category,'admin_route':d.admin_route,'adult_dose':d.adult_dose,'child_dose':d.child_dose,'frequency':d.frequency,'duration':d.duration,'notes':d.notes} for d in db.query(Drug).all()])
 
-# --- تم إضافة تعديل وحذف المريض ---
+@app.route('/api/drugs/manage', methods=['POST','DELETE'])
+@login_required
+def manage_drugs():
+    db = get_db()
+    if request.method == 'POST':
+        d = request.json
+        db.add(Drug(trade_name=d['trade_name'], category=d['category'], generic_name=d.get('generic_name',''), adult_dose=d.get('adult_dose',''), child_dose=d.get('child_dose',''), frequency='1x3', duration='5 days'))
+        db.commit()
+        return jsonify({'status':'ok'})
+    elif request.method == 'DELETE':
+        db.query(Drug).filter_by(id=request.args.get('id')).delete()
+        db.commit()
+        return jsonify({'status':'ok'})
+
+@app.route('/api/reload-drugs', methods=['POST'])
+@login_required
+def reload_drugs():
+    if not current_user.is_admin:
+        return jsonify({'error':'Unauthorized'}), 403
+    db = get_db()
+    db.query(Drug).delete()
+    from data.drug_database import ALL_DRUGS
+    for d in ALL_DRUGS:
+        db.add(Drug(**d))
+    db.commit()
+    return jsonify({'status':'ok', 'count': len(ALL_DRUGS)})
+
+# API Patients
 @app.route('/api/patients', methods=['GET','POST'])
 @login_required
 def patients():
@@ -128,7 +138,6 @@ def patient_update_delete(pid):
     p = db.query(Patient).filter_by(id=pid, doctor_id=current_user.id).first()
     if not p:
         return jsonify({'error': 'Patient not found'}), 404
-    
     if request.method == 'PUT':
         data = request.json
         p.name = data.get('name', p.name)
@@ -141,37 +150,12 @@ def patient_update_delete(pid):
         p.chronic_drugs = data.get('chronic_drugs', p.chronic_drugs)
         db.commit()
         return jsonify({'status':'updated'})
-    
     elif request.method == 'DELETE':
         db.delete(p)
         db.commit()
         return jsonify({'status':'deleted'})
 
-# --- تم إصلاح PDF لجميع المستخدمين ---
-@app.route('/api/generate-pdf', methods=['POST'])
-@login_required
-def pdf():
-    try:
-        d = request.json
-        db = get_db()
-        user = db.query(User).get(current_user.id)
-    print('GET settings:', user.doctor_name, user.logo_path)
-        # استخدام قيم افتراضية إذا لم يملأ الطبيب بياناته
-        doctor = {
-            'name': user.doctor_name or user.username,
-            'phone': user.doctor_phone or '',
-            'specialty': user.doctor_specialty or '',
-            'clinic': user.clinic_name or 'Dental Clinic',
-            'address': user.clinic_address or '',
-            'logo': user.logo_path,
-            'watermark': user.watermark_path
-        }
-        pdf_bytes = generate_pdf_bytes(d.get('patient',{}), d.get('drugs',[]), d.get('diagnosis',''), d.get('notes',''), doctor)
-        return Response(pdf_bytes, mimetype='application/pdf', headers={'Content-Disposition':'attachment;filename=rx.pdf'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-# --- باقي الـ API ---
+# API AI, PDF, WhatsApp, Prescriptions, Emergencies, Interactions, Dosing
 @app.route('/api/ai/analyze', methods=['POST'])
 @login_required
 def ai():
@@ -179,6 +163,19 @@ def ai():
     d = request.json
     result = analyze_case(d['symptoms'], d.get('age',''), d.get('gender',''), d.get('chronic',''), d.get('allergies',''))
     return jsonify({'result': result})
+
+@app.route('/api/generate-pdf', methods=['POST'])
+@login_required
+def pdf():
+    try:
+        d = request.json
+        db = get_db()
+        user = db.query(User).get(current_user.id)
+        doctor = {'name':user.doctor_name or user.username,'phone':user.doctor_phone or '','specialty':user.doctor_specialty or '','clinic':user.clinic_name or 'Dental Clinic','address':user.clinic_address or '','logo':user.logo_path,'watermark':user.watermark_path}
+        pdf_bytes = generate_pdf_bytes(d.get('patient',{}), d.get('drugs',[]), d.get('diagnosis',''), d.get('notes',''), doctor)
+        return Response(pdf_bytes, mimetype='application/pdf', headers={'Content-Disposition':'attachment;filename=rx.pdf'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/whatsapp-link', methods=['POST'])
 @login_required
@@ -198,7 +195,7 @@ def prescriptions():
         rx = Prescription(patient_id=d.get('patient_id'), doctor_id=current_user.id, diagnosis=d.get('diagnosis'), items_json=json.dumps(d['drugs']), is_ready=d.get('is_ready',False), ready_name=d.get('ready_name',''))
         if current_user.is_admin and d.get('is_global'): rx.is_global_template = True
         db.add(rx); db.commit()
-        return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
+        return jsonify({'status':'ok'})
     q = db.query(Prescription).filter_by(is_ready=True)
     if not current_user.is_admin: q = q.filter((Prescription.doctor_id == current_user.id) | (Prescription.is_global_template == True))
     return jsonify([{'id':rx.id,'ready_name':rx.ready_name,'items_json':rx.items_json,'is_global_template':rx.is_global_template} for rx in q.all()])
@@ -237,31 +234,36 @@ def admin_users():
     elif request.method == 'POST':
         d = request.json
         db.add(User(username=d['username'], password_hash=generate_password_hash(d['password'])))
-        db.commit(); return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
+        db.commit(); return jsonify({'status':'ok'})
     elif request.method == 'PUT':
         d = request.json; u = db.query(User).get(d['id'])
         if u and u.id != current_user.id:
             u.is_active = d.get('is_active', u.is_active)
             db.commit()
-        return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
+        return jsonify({'status':'ok'})
     elif request.method == 'DELETE':
         u = db.query(User).get(request.args.get('id'))
         if u and u.id != current_user.id: db.delete(u); db.commit()
-        return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
+        return jsonify({'status':'ok'})
 
-@app.route('/api/drugs/manage', methods=['POST','DELETE'])
+@app.route('/api/settings', methods=['GET','POST'])
 @login_required
-def manage_drugs():
+def settings():
     db = get_db()
     if request.method == 'POST':
-        d = request.json
-        db.add(Drug(trade_name=d['trade_name'], category=d['category'], generic_name=d.get('generic_name',''), adult_dose=d.get('adult_dose',''), child_dose=d.get('child_dose',''), frequency='1x3', duration='5 days'))
+        data = request.json
+        user = db.query(User).get(current_user.id)
+        if 'doctor_name' in data: user.doctor_name = data['doctor_name']
+        if 'doctor_phone' in data: user.doctor_phone = data['doctor_phone']
+        if 'doctor_specialty' in data: user.doctor_specialty = data['doctor_specialty']
+        if 'clinic_name' in data: user.clinic_name = data['clinic_name']
+        if 'clinic_address' in data: user.clinic_address = data['clinic_address']
+        if 'password' in data and data['password']:
+            user.password_hash = generate_password_hash(data['password'])
         db.commit()
-        return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
-    elif request.method == 'DELETE':
-        db.query(Drug).filter_by(id=request.args.get('id')).delete()
-        db.commit()
-        return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
+        return jsonify({'status':'ok'})
+    u = db.query(User).get(current_user.id)
+    return jsonify({'name':u.doctor_name,'phone':u.doctor_phone,'specialty':u.doctor_specialty,'clinic':u.clinic_name,'address':u.clinic_address,'logo':u.logo_path,'photo':u.photo_path,'watermark':u.watermark_path})
 
 @app.route('/api/upload-logo', methods=['POST'])
 @login_required
@@ -291,16 +293,3 @@ def upload_watermark():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
-
-@app.route('/api/reload-drugs', methods=['POST'])
-@login_required
-def reload_drugs():
-    if not current_user.is_admin:
-        return jsonify({'error':'Unauthorized'}), 403
-    db = get_db()
-    db.query(Drug).delete()
-    from data.drug_database import ALL_DRUGS
-    for d in ALL_DRUGS:
-        db.add(Drug(**d))
-    db.commit()
-    return jsonify({'status':'ok', 'count': len(ALL_DRUGS)})
