@@ -253,17 +253,27 @@ def settings():
     if request.method == 'POST':
         data = request.json
         user = db.query(User).get(current_user.id)
-        if 'doctor_name' in data: user.doctor_name = data['doctor_name']
-        if 'doctor_phone' in data: user.doctor_phone = data['doctor_phone']
-        if 'doctor_specialty' in data: user.doctor_specialty = data['doctor_specialty']
-        if 'clinic_name' in data: user.clinic_name = data['clinic_name']
-        if 'clinic_address' in data: user.clinic_address = data['clinic_address']
+        # هنا الإصلاح: استخدام أسماء الحقول الصحيحة التي ترسلها الواجهة
+        if 'name' in data: user.doctor_name = data['name']
+        if 'phone' in data: user.doctor_phone = data['phone']
+        if 'specialty' in data: user.doctor_specialty = data['specialty']
+        if 'clinic' in data: user.clinic_name = data['clinic']
+        if 'address' in data: user.clinic_address = data['address']
         if 'password' in data and data['password']:
             user.password_hash = generate_password_hash(data['password'])
         db.commit()
         return jsonify({'status':'ok'})
     u = db.query(User).get(current_user.id)
-    return jsonify({'name':u.doctor_name,'phone':u.doctor_phone,'specialty':u.doctor_specialty,'clinic':u.clinic_name,'address':u.clinic_address,'logo':u.logo_path,'photo':u.photo_path,'watermark':u.watermark_path})
+    return jsonify({
+        'name': u.doctor_name,
+        'phone': u.doctor_phone,
+        'specialty': u.doctor_specialty,
+        'clinic': u.clinic_name,
+        'address': u.clinic_address,
+        'logo': u.logo_path,
+        'photo': u.photo_path,
+        'watermark': u.watermark_path
+    })
 
 @app.route('/api/upload-logo', methods=['POST'])
 @login_required
