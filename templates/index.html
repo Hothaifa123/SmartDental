@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=1024, initial-scale=1.0, user-scalable=no">
     <title>Dental Smart Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
@@ -33,7 +33,9 @@
         .drug-selected{background:#e0f2fe!important;border-color:#0d9488!important}
         .drug-warning{background:#fee2e2!important;border-color:#ef4444!important}
         @media(max-width:768px){.sidebar{position:static;width:100%}.main{margin-left:0}.grid-2,.grid-3{grid-template-columns:1fr}}
-    </style>
+    @media screen and (max-width: 768px) { .app { flex-direction: row; } .sidebar { position: relative; width: 260px; } .main { margin-left: 0; } }
+</style>
+<link rel="icon" href="/static/icon.png" type="image/png">
 </head>
 <body>
 <div class="app">
