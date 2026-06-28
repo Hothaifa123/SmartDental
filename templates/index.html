@@ -33,9 +33,11 @@
         .drug-selected{background:#e0f2fe!important;border-color:#0d9488!important}
         .drug-warning{background:#fee2e2!important;border-color:#ef4444!important}
         @media(max-width:768px){.sidebar{position:static;width:100%}.main{margin-left:0}.grid-2,.grid-3{grid-template-columns:1fr}}
+.menu-btn{display:flex!important;position:fixed;top:15px;left:15px;z-index:50;background:#0f766e;color:#fff;border:none;border-radius:12px;padding:10px;cursor:pointer;width:44px;height:44px;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2)} .sidebar.open{transform:translateX(0)!important} .sidebar{transform:translateX(-100%);transition:transform 0.3s ease}
     </style>
 </head>
 <body>
+<button class="menu-btn" onclick="toggleMenu()"><i data-lucide="menu"></i></button>
 <div class="app">
     <aside class="sidebar">
         <div class="mb-4 px-2 text-center">
@@ -588,7 +590,9 @@ function updateDrugSuggestions(){
 }
 
 // ========== NAVIGATION ==========
+function toggleMenu(){document.getElementById("sidebar").classList.toggle("open");}
 function switchV(id){
+if(window.innerWidth <= 768) document.getElementById("sidebar").classList.remove("open");
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.v===id));
