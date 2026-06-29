@@ -1,11 +1,31 @@
-import google.generativeai as genai
-from config import GEMINI_API_KEY, GEMINI_MODEL
+import os
+from groq import Groq
+
 def analyze_case(symptoms, age, gender, chronic, allergies):
-    if not GEMINI_API_KEY: return "API key not configured."
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    if not api_key:
+        return "AI Error: API key not configured in Render."
+    
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel(GEMINI_MODEL)
-        prompt = f"""As a dental specialist, analyze: Symptoms: {symptoms}, Age: {age}, Gender: {gender}, Chronic: {chronic or 'none'}, Allergies: {allergies or 'none'}. Provide: 1. Possible Diagnoses 2. Recommended Medications 3. Precautions"""
-        return model.generate_content(prompt).text
+        client = Groq(api_key=api_key)
+        prompt = f"""You are a dental specialist. Analyze this case:
+Symptoms: {symptoms}
+Age: {age}, Gender: {gender}
+Chronic conditions: {chronic or 'none'}
+Allergies: {allergies or 'none'}
+
+Provide:
+1. Possible Diagnoses (2-3)
+2. Most Likely Diagnosis
+3. Recommended Medications (specific names, doses, duration)
+4. Precautions & Warnings"""
+
+        response = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=1000
+        )
+        return response.choices[0].message.content
     except Exception as e:
         return f"AI Error: {str(e)}"
