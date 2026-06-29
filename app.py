@@ -303,3 +303,27 @@ def upload_watermark():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
+
+@app.route('/api/appointments', methods=['GET','POST'])
+@login_required
+def appointments():
+    db = get_db()
+    if request.method == 'POST':
+        d = request.json
+        appt = Appointment(patient_id=d['patient_id'], doctor_id=current_user.id, date=d['date'], time=d['time'], reason=d.get('reason',''))
+        db.add(appt); db.commit()
+        return jsonify({'status':'ok'})
+    apps = db.query(Appointment).filter_by(doctor_id=current_user.id).all()
+    return jsonify([{'id':a.id, 'patient_id':a.patient_id, 'patient_name':a.patient.name if a.patient else '', 'date':a.date, 'time':a.time, 'reason':a.reason} for a in apps])
+
+@app.route('/api/appointments', methods=['GET','POST'])
+@login_required
+def appointments():
+    db = get_db()
+    if request.method == 'POST':
+        d = request.json
+        appt = Appointment(patient_id=d['patient_id'], doctor_id=current_user.id, date=d['date'], time=d['time'], reason=d.get('reason',''))
+        db.add(appt); db.commit()
+        return jsonify({'status':'ok'})
+    apps = db.query(Appointment).filter_by(doctor_id=current_user.id).all()
+    return jsonify([{'id':a.id, 'patient_id':a.patient_id, 'patient_name':a.patient.name if a.patient else '', 'date':a.date, 'time':a.time, 'reason':a.reason} for a in apps])

@@ -68,3 +68,23 @@ class EmergencyProtocol(Base):
     symptoms = Column(Text)
     procedure = Column(Text)
     medications = Column(Text)
+
+class Appointment(Base):
+    __tablename__ = 'appointments'
+    id = Column(Integer, primary_key=True)
+    patient_id = Column(Integer, ForeignKey('patients.id'))
+    doctor_id = Column(Integer, ForeignKey('users.id'))
+    date = Column(String(20))
+    time = Column(String(10))
+    reason = Column(Text)
+    patient = relationship('Patient')
+
+class Appointment(Base):
+    __tablename__ = 'appointments'
+    id = Column(Integer, primary_key=True)
+    patient_id = Column(Integer, ForeignKey('patients.id'))
+    doctor_id = Column(Integer, ForeignKey('users.id'))
+    date = Column(String(20))
+    time = Column(String(10))
+    reason = Column(Text)
+    patient = relationship('Patient')
