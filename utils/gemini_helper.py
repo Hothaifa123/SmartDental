@@ -21,7 +21,7 @@ Provide:
 4. Precautions & Warnings"""
 
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="mixtral-8x7b-32768",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=1000
