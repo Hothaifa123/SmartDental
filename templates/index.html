@@ -385,10 +385,8 @@ async function downloadPDF(){
     let res=await fetch('/api/generate-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient:p,drugs:RX.map(d=>({drug_name:d.trade_name,dosage:d.dosage||d.adult_dose,frequency:d.frequency})),diagnosis:document.getElementById('rx-diagnosis').value})});
     if(!res.ok){alert('Error generating PDF');return}
     let blob=await res.blob();
-    let a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='prescription.pdf';
-    a.click();
+    let url=URL.createObjectURL(blob);
+    window.open(url,'_blank');
 }
 
 async function sendWhatsApp(){
@@ -457,7 +455,7 @@ function renderEmergencies(){
         </details>`).join('');
 }
 
-// ========== SETTINGS ==========
+// ========== SETTINGS (FIXED: Clinic Name now saves permanently) ==========
 async function saveSettings(){
     let data={
         name:document.getElementById('s-name').value,
