@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 from flask_login import UserMixin
 Base = declarative_base()
+
 class User(Base, UserMixin):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
@@ -21,6 +22,7 @@ class User(Base, UserMixin):
     created_at = Column(DateTime, default=datetime.now)
     patients = relationship('Patient', back_populates='doctor', cascade='all, delete-orphan')
     prescriptions = relationship('Prescription', back_populates='doctor', cascade='all, delete-orphan')
+
 class Patient(Base):
     __tablename__ = 'patients'
     id = Column(Integer, primary_key=True)
@@ -35,6 +37,7 @@ class Patient(Base):
     doctor_id = Column(Integer, ForeignKey('users.id'))
     created_at = Column(DateTime, default=datetime.now)
     doctor = relationship('User', back_populates='patients')
+
 class Drug(Base):
     __tablename__ = 'drugs'
     id = Column(Integer, primary_key=True)
@@ -48,6 +51,7 @@ class Drug(Base):
     duration = Column(String(200))
     notes = Column(Text)
     is_global = Column(Boolean, default=True)
+
 class Prescription(Base):
     __tablename__ = 'prescriptions'
     id = Column(Integer, primary_key=True)
@@ -61,6 +65,7 @@ class Prescription(Base):
     created_at = Column(DateTime, default=datetime.now)
     patient = relationship('Patient')
     doctor = relationship('User', back_populates='prescriptions')
+
 class EmergencyProtocol(Base):
     __tablename__ = 'emergency_protocols'
     id = Column(Integer, primary_key=True)
@@ -68,16 +73,6 @@ class EmergencyProtocol(Base):
     symptoms = Column(Text)
     procedure = Column(Text)
     medications = Column(Text)
-
-class Appointment(Base):
-    __tablename__ = 'appointments'
-    id = Column(Integer, primary_key=True)
-    patient_id = Column(Integer, ForeignKey('patients.id'))
-    doctor_id = Column(Integer, ForeignKey('users.id'))
-    date = Column(String(20))
-    time = Column(String(10))
-    reason = Column(Text)
-    patient = relationship('Patient')
 
 class Appointment(Base):
     __tablename__ = 'appointments'
