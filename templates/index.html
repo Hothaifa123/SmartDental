@@ -218,6 +218,7 @@
 </div>
 
 <script>
+window.onerror = function(msg, url, line){ alert("An error occurred. Please refresh."); return false; };
 // ========== GLOBAL VARIABLES ==========
 let D=[],P=[],RX=[],RD=[],SET={},EM=[],USERS=[],DISEASES={},SELECTED_DRUG=null,PT_DISEASES=[],PT_DRUGS=[],APPS=[],currentProfile=null;
 let isAdmin={{ 'true' if current_user.is_admin else 'false' }};
@@ -317,7 +318,7 @@ async function toggleUser(id,act){await api('/api/admin/users',{method:'PUT',hea
 async function deleteUser(id){if(confirm('Delete this user?')){await api('/api/admin/users?id='+id,{method:'DELETE'});load()}}
 
 // ========== CHRONIC DISEASES & MEDICATIONS ==========
-fetch('/static/chronic_diseases.json').then(r=>r.json()).then(d=>{DISEASES=d;renderDiseaseChips();});
+fetch("/static/chronic_diseases.json").then(r=>r.json()).then(d=>{DISEASES=d; renderDiseaseChips();}).catch(e=>console.error("Diseases file not loaded"));});
 function renderDiseaseChips(){let html='';for(let d in DISEASES){html+=`<span class="chip" data-disease="${d}" onclick="this.classList.toggle('active');setTimeout(updateDrugSuggestions,50)">${d}</span>`;}document.getElementById('disease-chips').innerHTML=html}
 document.getElementById('p-drug-select').onchange=function(){let val=this.value;if(!val)return;if(!PT_DRUGS.includes(val)){PT_DRUGS.push(val);renderDrugChips();}this.value='';};
 document.getElementById('p-drug-input').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();let val=this.value.trim();if(val&&!PT_DRUGS.includes(val)){PT_DRUGS.push(val);renderDrugChips();}this.value='';}};
