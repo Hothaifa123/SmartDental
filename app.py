@@ -5,8 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import json, os, urllib.parse
 from database import init_db, get_db
-from models import User, Patient, Drug, Prescription, EmergencyProtocol
-from config import UPLOAD_FOLDER, DEVELOPER_INFO, GEMINI_API_KEY
+from models import User, Patient, Drug, Prescription, EmergencyProtocol, Appointment
+from config import UPLOAD_FOLDER, DEVELOPER_INFO
 from utils.prescription_engine import generate_pdf_bytes
 from utils.smart_checker import check_interactions, auto_adjust_dose
 
@@ -85,7 +85,7 @@ def index():
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-# API Drugs
+# ---------- DRUGS ----------
 @app.route('/api/drugs')
 @login_required
 def drugs():
@@ -109,17 +109,15 @@ def manage_drugs():
 @app.route('/api/reload-drugs', methods=['POST'])
 @login_required
 def reload_drugs():
-    if not current_user.is_admin:
-        return jsonify({'error':'Unauthorized'}), 403
+    if not current_user.is_admin: return jsonify({'error':'Unauthorized'}), 403
     db = get_db()
     db.query(Drug).delete()
     from data.drug_database import ALL_DRUGS
-    for d in ALL_DRUGS:
-        db.add(Drug(**d))
+    for d in ALL_DRUGS: db.add(Drug(**d))
     db.commit()
     return jsonify({'status':'ok', 'count': len(ALL_DRUGS)})
 
-# API Patients
+# ---------- PATIENTS ----------
 @app.route('/api/patients', methods=['GET','POST'])
 @login_required
 def patients():
@@ -136,8 +134,7 @@ def patients():
 def patient_update_delete(pid):
     db = get_db()
     p = db.query(Patient).filter_by(id=pid, doctor_id=current_user.id).first()
-    if not p:
-        return jsonify({'error': 'Patient not found'}), 404
+    if not p: return jsonify({'error': 'Patient not found'}), 404
     if request.method == 'PUT':
         data = request.json
         p.name = data.get('name', p.name)
@@ -151,11 +148,23 @@ def patient_update_delete(pid):
         db.commit()
         return jsonify({'status':'updated'})
     elif request.method == 'DELETE':
-        db.delete(p)
-        db.commit()
+        db.delete(p); db.commit()
         return jsonify({'status':'deleted'})
 
-# API AI, PDF, WhatsApp, Prescriptions, Emergencies, Interactions, Dosing
+# ---------- APPOINTMENTS ----------
+@app.route('/api/appointments', methods=['GET','POST'])
+@login_required
+def appointments():
+    db = get_db()
+    if request.method == 'POST':
+        d = request.json
+        appt = Appointment(patient_id=d['patient_id'], doctor_id=current_user.id, date=d['date'], time=d['time'], reason=d.get('reason',''))
+        db.add(appt); db.commit()
+        return jsonify({'status':'ok'})
+    apps = db.query(Appointment).filter_by(doctor_id=current_user.id).all()
+    return jsonify([{'id':a.id, 'patient_id':a.patient_id, 'patient_name':a.patient.name if a.patient else '', 'date':a.date, 'time':a.time, 'reason':a.reason} for a in apps])
+
+# ---------- AI ----------
 @app.route('/api/ai/analyze', methods=['POST'])
 @login_required
 def ai():
@@ -164,6 +173,7 @@ def ai():
     result = analyze_case(d['symptoms'], d.get('age',''), d.get('gender',''), d.get('chronic',''), d.get('allergies',''))
     return jsonify({'result': result})
 
+# ---------- PDF ----------
 @app.route('/api/generate-pdf', methods=['POST'])
 @login_required
 def pdf():
@@ -177,6 +187,7 @@ def pdf():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ---------- WHATSAPP ----------
 @app.route('/api/whatsapp-link', methods=['POST'])
 @login_required
 def whatsapp():
@@ -186,6 +197,7 @@ def whatsapp():
     msg = f"Dear {name}, your prescription from Dr. {current_user.doctor_name or 'Doctor'}."
     return jsonify({'link': f"https://wa.me/{phone}?text={urllib.parse.quote(msg)}"})
 
+# ---------- PRESCRIPTIONS ----------
 @app.route('/api/prescriptions', methods=['GET','POST'])
 @login_required
 def prescriptions():
@@ -200,11 +212,13 @@ def prescriptions():
     if not current_user.is_admin: q = q.filter((Prescription.doctor_id == current_user.id) | (Prescription.is_global_template == True))
     return jsonify([{'id':rx.id,'ready_name':rx.ready_name,'items_json':rx.items_json,'is_global_template':rx.is_global_template} for rx in q.all()])
 
+# ---------- EMERGENCIES ----------
 @app.route('/api/emergencies')
 @login_required
 def emergencies():
     return jsonify([{'id':e.id,'name':e.name,'symptoms':e.symptoms,'procedure':e.procedure,'medications':e.medications} for e in get_db().query(EmergencyProtocol).all()])
 
+# ---------- INTERACTIONS & DOSING ----------
 @app.route('/api/check-interactions', methods=['POST'])
 @login_required
 def api_check_interactions():
@@ -224,6 +238,7 @@ def api_auto_dose():
     d = request.json
     return jsonify(auto_adjust_dose(d['drug'], d.get('age',30), d.get('weight')))
 
+# ---------- ADMIN USERS ----------
 @app.route('/api/admin/users', methods=['GET','POST','PUT','DELETE'])
 @login_required
 def admin_users():
@@ -246,6 +261,7 @@ def admin_users():
         if u and u.id != current_user.id: db.delete(u); db.commit()
         return jsonify({'status':'ok'})
 
+# ---------- SETTINGS ----------
 @app.route('/api/settings', methods=['GET','POST'])
 @login_required
 def settings():
@@ -253,7 +269,6 @@ def settings():
     if request.method == 'POST':
         data = request.json
         user = db.query(User).get(current_user.id)
-        # هنا الإصلاح: استخدام أسماء الحقول الصحيحة التي ترسلها الواجهة
         if 'name' in data: user.doctor_name = data['name']
         if 'phone' in data: user.doctor_phone = data['phone']
         if 'specialty' in data: user.doctor_specialty = data['specialty']
@@ -264,17 +279,9 @@ def settings():
         db.commit()
         return jsonify({'status':'ok'})
     u = db.query(User).get(current_user.id)
-    return jsonify({
-        'name': u.doctor_name,
-        'phone': u.doctor_phone,
-        'specialty': u.doctor_specialty,
-        'clinic': u.clinic_name,
-        'address': u.clinic_address,
-        'logo': u.logo_path,
-        'photo': u.photo_path,
-        'watermark': u.watermark_path
-    })
+    return jsonify({'name':u.doctor_name,'phone':u.doctor_phone,'specialty':u.doctor_specialty,'clinic':u.clinic_name,'address':u.clinic_address,'logo':u.logo_path,'photo':u.photo_path,'watermark':u.watermark_path})
 
+# ---------- UPLOAD ----------
 @app.route('/api/upload-logo', methods=['POST'])
 @login_required
 def upload_logo():
@@ -303,27 +310,3 @@ def upload_watermark():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
-
-@app.route('/api/appointments', methods=['GET','POST'])
-@login_required
-def appointments():
-    db = get_db()
-    if request.method == 'POST':
-        d = request.json
-        appt = Appointment(patient_id=d['patient_id'], doctor_id=current_user.id, date=d['date'], time=d['time'], reason=d.get('reason',''))
-        db.add(appt); db.commit()
-        return jsonify({'status':'ok'})
-    apps = db.query(Appointment).filter_by(doctor_id=current_user.id).all()
-    return jsonify([{'id':a.id, 'patient_id':a.patient_id, 'patient_name':a.patient.name if a.patient else '', 'date':a.date, 'time':a.time, 'reason':a.reason} for a in apps])
-
-@app.route('/api/appointments', methods=['GET','POST'])
-@login_required
-def appointments():
-    db = get_db()
-    if request.method == 'POST':
-        d = request.json
-        appt = Appointment(patient_id=d['patient_id'], doctor_id=current_user.id, date=d['date'], time=d['time'], reason=d.get('reason',''))
-        db.add(appt); db.commit()
-        return jsonify({'status':'ok'})
-    apps = db.query(Appointment).filter_by(doctor_id=current_user.id).all()
-    return jsonify([{'id':a.id, 'patient_id':a.patient_id, 'patient_name':a.patient.name if a.patient else '', 'date':a.date, 'time':a.time, 'reason':a.reason} for a in apps])
