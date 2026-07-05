@@ -182,12 +182,24 @@ def pdf():
         db = get_db()
         user = db.query(User).get(current_user.id)
         doctor = {'name':user.doctor_name or user.username,'phone':user.doctor_phone or '','specialty':user.doctor_specialty or '','clinic':user.clinic_name or 'Dental Clinic','address':user.clinic_address or '','logo':user.logo_path,'watermark':user.watermark_path}
+        
+        # حفظ الوصفة تلقائياً إذا كان هناك مريض محدد
+        patient_id = d.get('patient_id')
+        if patient_id:
+            rx = Prescription(
+                patient_id=patient_id,
+                doctor_id=current_user.id,
+                diagnosis=d.get('diagnosis', ''),
+                items_json=json.dumps(d['drugs'])
+            )
+            db.add(rx)
+            db.commit()
+        
         pdf_bytes = generate_pdf_bytes(d.get('patient',{}), d.get('drugs',[]), d.get('diagnosis',''), d.get('notes',''), doctor)
         return Response(pdf_bytes, mimetype='application/pdf', headers={'Content-Disposition':'attachment;filename=rx.pdf'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ---------- WHATSAPP ----------
 @app.route('/api/whatsapp-link', methods=['POST'])
 @login_required
 def whatsapp():
@@ -273,6 +285,8 @@ def settings():
         if 'phone' in data: user.doctor_phone = data['phone']
         if 'specialty' in data: user.doctor_specialty = data['specialty']
         if 'clinic' in data: user.clinic_name = data['clinic']
+        if 'clinic_name' in data: user.clinic_name = data['clinic_name']
+        if 'clinic_name' in data: user.clinic_name = data['clinic_name']
         if 'address' in data: user.clinic_address = data['address']
         if 'password' in data and data['password']:
             user.password_hash = generate_password_hash(data['password'])
@@ -310,3 +324,169 @@ def upload_watermark():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
+
+# الحصول على وصفات مريض محدد
+@app.route('/api/patient/<int:pid>/prescriptions')
+@login_required
+def patient_prescriptions(pid):
+    db = get_db()
+    # التأكد من أن المريض يتبع هذا الطبيب
+    p = db.query(Patient).filter_by(id=pid, doctor_id=current_user.id).first()
+    if not p:
+        return jsonify({'error': 'Patient not found'}), 404
+    rxs = db.query(Prescription).filter_by(patient_id=pid, doctor_id=current_user.id).order_by(Prescription.created_at.desc()).all()
+    return jsonify([{
+        'id': rx.id,
+        'diagnosis': rx.diagnosis,
+        'items_json': rx.items_json,
+        'created_at': rx.created_at.isoformat() if rx.created_at else None
+    } for rx in rxs])
+
+@app.route('/api/prescriptions/<int:rid>', methods=['PUT','DELETE'])
+@login_required
+def prescription_update_delete(rid):
+    db = get_db()
+    rx = db.query(Prescription).filter_by(id=rid, doctor_id=current_user.id, is_ready=True).first()
+    if not rx:
+        return jsonify({'error': 'Prescription not found'}), 404
+    if request.method == 'PUT':
+        data = request.json
+        if 'ready_name' in data:
+            rx.ready_name = data['ready_name']
+        if 'items_json' in data:
+            rx.items_json = json.dumps(data['items_json'])
+        db.commit()
+        return jsonify({'status': 'updated'})
+    elif request.method == 'DELETE':
+        db.delete(rx)
+        db.commit()
+        return jsonify({'status': 'deleted'})
+
+@app.route('/api/emergencies/manage', methods=['POST','PUT','DELETE'])
+@login_required
+def manage_emergencies():
+    db = get_db()
+    if request.method == 'POST':
+        d = request.json
+        db.add(EmergencyProtocol(name=d['name'], symptoms=d.get('symptoms',''), procedure=d.get('procedure',''), medications=d.get('medications','')))
+        db.commit()
+        return jsonify({'status':'ok'})
+    elif request.method == 'PUT':
+        d = request.json
+        em = db.query(EmergencyProtocol).get(d['id'])
+        if em:
+            if 'name' in d: em.name = d['name']
+            if 'symptoms' in d: em.symptoms = d['symptoms']
+            if 'procedure' in d: em.procedure = d['procedure']
+            if 'medications' in d: em.medications = d['medications']
+            db.commit()
+        return jsonify({'status':'ok'})
+    elif request.method == 'DELETE':
+        db.query(EmergencyProtocol).filter_by(id=request.args.get('id')).delete()
+        db.commit()
+        return jsonify({'status':'ok'})
+
+@app.route('/api/admin/stats')
+@login_required
+def admin_stats():
+    if not current_user.is_admin:
+        return jsonify({'error':'Unauthorized'}), 403
+    db = get_db()
+    users = db.query(User).filter(User.id != current_user.id).all()
+    stats = []
+    for u in users:
+        rx_count = db.query(Prescription).filter_by(doctor_id=u.id).count()
+        patient_count = db.query(Patient).filter_by(doctor_id=u.id).count()
+        last_login = None  # يمكن إضافته لاحقاً
+        stats.append({
+            'id': u.id,
+            'username': u.username,
+            'is_active': u.is_active,
+            'prescriptions_count': rx_count,
+            'patients_count': patient_count,
+            'doctor_name': u.doctor_name
+        })
+    return jsonify(stats)
+
+# الحصول على وصفات مريض محدد
+@app.route('/api/patient/<int:pid>/prescriptions')
+@login_required
+def patient_prescriptions(pid):
+    db = get_db()
+    # التأكد من أن المريض يتبع هذا الطبيب
+    p = db.query(Patient).filter_by(id=pid, doctor_id=current_user.id).first()
+    if not p:
+        return jsonify({'error': 'Patient not found'}), 404
+    rxs = db.query(Prescription).filter_by(patient_id=pid, doctor_id=current_user.id).order_by(Prescription.created_at.desc()).all()
+    return jsonify([{
+        'id': rx.id,
+        'diagnosis': rx.diagnosis,
+        'items_json': rx.items_json,
+        'created_at': rx.created_at.isoformat() if rx.created_at else None
+    } for rx in rxs])
+
+@app.route('/api/prescriptions/<int:rid>', methods=['PUT','DELETE'])
+@login_required
+def prescription_update_delete(rid):
+    db = get_db()
+    rx = db.query(Prescription).filter_by(id=rid, doctor_id=current_user.id, is_ready=True).first()
+    if not rx:
+        return jsonify({'error': 'Prescription not found'}), 404
+    if request.method == 'PUT':
+        data = request.json
+        if 'ready_name' in data:
+            rx.ready_name = data['ready_name']
+        if 'items_json' in data:
+            rx.items_json = json.dumps(data['items_json'])
+        db.commit()
+        return jsonify({'status': 'updated'})
+    elif request.method == 'DELETE':
+        db.delete(rx)
+        db.commit()
+        return jsonify({'status': 'deleted'})
+
+@app.route('/api/emergencies/manage', methods=['POST','PUT','DELETE'])
+@login_required
+def manage_emergencies():
+    db = get_db()
+    if request.method == 'POST':
+        d = request.json
+        db.add(EmergencyProtocol(name=d['name'], symptoms=d.get('symptoms',''), procedure=d.get('procedure',''), medications=d.get('medications','')))
+        db.commit()
+        return jsonify({'status':'ok'})
+    elif request.method == 'PUT':
+        d = request.json
+        em = db.query(EmergencyProtocol).get(d['id'])
+        if em:
+            if 'name' in d: em.name = d['name']
+            if 'symptoms' in d: em.symptoms = d['symptoms']
+            if 'procedure' in d: em.procedure = d['procedure']
+            if 'medications' in d: em.medications = d['medications']
+            db.commit()
+        return jsonify({'status':'ok'})
+    elif request.method == 'DELETE':
+        db.query(EmergencyProtocol).filter_by(id=request.args.get('id')).delete()
+        db.commit()
+        return jsonify({'status':'ok'})
+
+@app.route('/api/admin/stats')
+@login_required
+def admin_stats():
+    if not current_user.is_admin:
+        return jsonify({'error':'Unauthorized'}), 403
+    db = get_db()
+    users = db.query(User).filter(User.id != current_user.id).all()
+    stats = []
+    for u in users:
+        rx_count = db.query(Prescription).filter_by(doctor_id=u.id).count()
+        patient_count = db.query(Patient).filter_by(doctor_id=u.id).count()
+        last_login = None  # يمكن إضافته لاحقاً
+        stats.append({
+            'id': u.id,
+            'username': u.username,
+            'is_active': u.is_active,
+            'prescriptions_count': rx_count,
+            'patients_count': patient_count,
+            'doctor_name': u.doctor_name
+        })
+    return jsonify(stats)
