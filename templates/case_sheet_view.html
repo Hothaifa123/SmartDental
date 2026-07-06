@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Sheet - Smart Dental</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <style>
+        :root{--teal:#0d9488;--bg:#f0fdfa;--text:#1a2e2b;--card:#fff}
+        .dark{--teal:#14b8a6;--bg:#0f172a;--text:#e2e8f0;--card:#1e293b}
+        body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text)}
+        .sheet-container{max-width:800px;margin:0 auto;padding:20px}
+        .a4-sheet{background:white;padding:40px;box-shadow:0 4px 20px rgba(0,0,0,0.1);min-height:1000px;font-family:'Times New Roman',serif;color:#000}
+        .field-row{display:flex;gap:10px;margin:8px 0;align-items:flex-end}
+        .field-row label{font-weight:bold;font-size:13px;white-space:nowrap}
+        .field-row input{border:none;border-bottom:1px dotted #666;outline:none;padding:4px;font:14px 'Times New Roman',serif;width:100%}
+        .section-title{font-weight:bold;font-size:15px;margin:15px 0 5px;border-bottom:1px solid #ccc;padding-bottom:3px}
+        .check-row{display:flex;align-items:center;gap:8px;margin:4px 0}
+        .check-box{width:16px;height:16px;border:1px solid #666;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px}
+        .check-box.checked{background:#d1fae5}
+        .check-box.crossed{background:#fee2e2}
+        textarea{width:100%;border:1px solid #ddd;min-height:50px;padding:5px;font:14px 'Times New Roman',serif}
+        .btn{background:var(--teal);color:#fff;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+        .btn:hover{opacity:0.9}
+        .btn-red{background:#ef4444}
+    </style>
+</head>
+<body>
+<div class="sheet-container">
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h2 class="text-xl font-bold" id="sheet-title">Oral Surgery Case Sheet</h2>
+            <p class="text-sm text-gray-500" id="patient-info"></p>
+        </div>
+        <div class="flex gap-2">
+            <button class="btn" onclick="saveSheet()"><i data-lucide="save"></i> Save</button>
+            <button class="btn" style="background:#333" onclick="window.print()"><i data-lucide="printer"></i> Print</button>
+            <button class="btn" style="background:#6366f1" onclick="window.close()"><i data-lucide="x"></i> Close</button>
+        </div>
+    </div>
+    
+    <div class="a4-sheet" id="a4-sheet">
+        <div class="text-center mb-4">
+            <h3 style="font-size:20px;font-weight:bold;text-decoration:underline">CASE SHEET OF ORAL SURGERY</h3>
+        </div>
+        
+        <div class="section-title">1. Patient Personal Data</div>
+        <div class="field-row">
+            <label>Name:</label><input id="cs-name" class="flex-2">
+            <label>Gender:</label><input id="cs-gender" style="width:80px">
+            <label>Age:</label><input id="cs-age" style="width:60px">
+            <label>Date:</label><input id="cs-date" style="width:120px">
+        </div>
+        <div class="field-row">
+            <label>Address:</label><input id="cs-address">
+            <label>Occupation:</label><input id="cs-occupation">
+            <label>Tel:</label><input id="cs-tel" style="width:150px">
+        </div>
+        
+        <div class="section-title">2. Chief Complaint</div>
+        <textarea id="cs-chief-complaint" rows="2"></textarea>
+        
+        <div class="section-title">3. History of Present Illness</div>
+        <textarea id="cs-present-illness" rows="2"></textarea>
+        
+        <div class="section-title">4. Past Dental History</div>
+        <textarea id="cs-past-dental" rows="2"></textarea>
+        
+        <div class="section-title">5. Medical History</div>
+        <div id="medical-checks"></div>
+        
+        <div class="section-title">6. Clinical Examination (Extra-Oral)</div>
+        <div id="exam-checks"></div>
+        
+        <div class="section-title">7. Clinical Examination (Intra-Oral)</div>
+        <div id="tooth-chart" class="my-3"></div>
+        
+        <div class="section-title">8. Investigations</div>
+        <textarea id="cs-investigations" rows="3"></textarea>
+        
+        <div class="section-title">9. Final Diagnosis</div>
+        <textarea id="cs-diagnosis" rows="3"></textarea>
+        
+        <div class="section-title">10. Treatment Plan</div>
+        <textarea id="cs-treatment" rows="3"></textarea>
+    </div>
+</div>
+
+<script>
+const MEDICAL_ITEMS = [
+    "Cardiovascular Diseases", "Endocrine Disorders / Diabetes", "Respiratory Diseases / Asthma",
+    "Blood Disorders / Bleeding Tendency", "Liver Diseases / Hepatitis", "Renal Diseases / Kidney Failure",
+    "Allergies (Penicillin, LA)", "Other Systemic Complications"
+];
+const EXAM_ITEMS = [
+    "Skin Tone & General Appearance", "Facial Symmetry & Neck", "TMJ", "Salivary Glands", "Mouth Opening"
+];
+const TEETH = [8,7,6,5,4,3,2,1,1,2,3,4,5,6,7,8];
+
+// Build medical checks
+let medHTML = '';
+MEDICAL_ITEMS.forEach(m => {
+    medHTML += `<div class="check-row"><div class="check-box" onclick="toggleCheck(this)"></div><span>${m}</span><input class="flex-1" style="border:none;border-bottom:1px dotted #666;margin-left:8px;outline:none" placeholder="Notes"></div>`;
+});
+document.getElementById('medical-checks').innerHTML = medHTML;
+
+// Build exam checks
+let examHTML = '';
+EXAM_ITEMS.forEach(e => {
+    examHTML += `<div class="check-row"><div class="check-box" onclick="toggleCheck(this)"></div><span>${e}</span><input class="flex-1" style="border:none;border-bottom:1px dotted #666;margin-left:8px;outline:none" placeholder="Notes"></div>`;
+});
+document.getElementById('exam-checks').innerHTML = examHTML;
+
+// Build tooth chart
+let toothHTML = '<table style="border-collapse:collapse;margin:0 auto"><tr>';
+for(let i=0; i<16; i++) toothHTML += '<td class="check-box" style="width:30px;height:30px" onclick="toggleTooth(this)"></td>';
+toothHTML += '</tr><tr>';
+TEETH.forEach(t => toothHTML += `<td style="text-align:center;font-weight:bold;padding:5px">${t}</td>`);
+toothHTML += '</tr><tr>';
+for(let i=0; i<16; i++) toothHTML += '<td class="check-box" style="width:30px;height:30px" onclick="toggleTooth(this)"></td>';
+toothHTML += '</tr></table>';
+document.getElementById('tooth-chart').innerHTML = toothHTML;
+
+function toggleCheck(el){
+    if(el.classList.contains('checked')){ el.classList.remove('checked'); el.classList.add('crossed'); el.textContent='✕'; }
+    else if(el.classList.contains('crossed')){ el.classList.remove('crossed'); el.textContent=''; }
+    else { el.classList.add('checked'); el.textContent='✓'; }
+}
+
+function toggleTooth(el){
+    const marks = ['', 'O', 'X', 'F', 'NE'];
+    const current = el.textContent;
+    const idx = marks.indexOf(current) + 1;
+    el.textContent = marks[idx >= marks.length ? 0 : idx];
+}
+
+function getSheetData(){
+    return {
+        name: document.getElementById('cs-name').value,
+        gender: document.getElementById('cs-gender').value,
+        age: document.getElementById('cs-age').value,
+        date: document.getElementById('cs-date').value,
+        address: document.getElementById('cs-address').value,
+        occupation: document.getElementById('cs-occupation').value,
+        tel: document.getElementById('cs-tel').value,
+        chief_complaint: document.getElementById('cs-chief-complaint').value,
+        present_illness: document.getElementById('cs-present-illness').value,
+        past_dental: document.getElementById('cs-past-dental').value,
+        investigations: document.getElementById('cs-investigations').value,
+        diagnosis: document.getElementById('cs-diagnosis').value,
+        treatment: document.getElementById('cs-treatment').value,
+        medical: Array.from(document.querySelectorAll('#medical-checks .check-row')).map(r => ({checked: r.querySelector('.check-box').classList.contains('checked'), crossed: r.querySelector('.check-box').classList.contains('crossed'), notes: r.querySelector('input').value})),
+        exam: Array.from(document.querySelectorAll('#exam-checks .check-row')).map(r => ({checked: r.querySelector('.check-box').classList.contains('checked'), crossed: r.querySelector('.check-box').classList.contains('crossed'), notes: r.querySelector('input').value})),
+        teeth: Array.from(document.querySelectorAll('#tooth-chart .check-box')).map(t => t.textContent)
+    };
+}
+
+function loadSheetData(data){
+    if(!data) return;
+    document.getElementById('cs-name').value = data.name || '';
+    document.getElementById('cs-gender').value = data.gender || '';
+    document.getElementById('cs-age').value = data.age || '';
+    document.getElementById('cs-date').value = data.date || new Date().toISOString().split('T')[0];
+    document.getElementById('cs-address').value = data.address || '';
+    document.getElementById('cs-occupation').value = data.occupation || '';
+    document.getElementById('cs-tel').value = data.tel || '';
+    document.getElementById('cs-chief-complaint').value = data.chief_complaint || '';
+    document.getElementById('cs-present-illness').value = data.present_illness || '';
+    document.getElementById('cs-past-dental').value = data.past_dental || '';
+    document.getElementById('cs-investigations').value = data.investigations || '';
+    document.getElementById('cs-diagnosis').value = data.diagnosis || '';
+    document.getElementById('cs-treatment').value = data.treatment || '';
+    if(data.medical){
+        document.querySelectorAll('#medical-checks .check-row').forEach((r,i) => {
+            if(data.medical[i]){
+                const box = r.querySelector('.check-box');
+                box.classList.toggle('checked', data.medical[i].checked);
+                box.classList.toggle('crossed', data.medical[i].crossed);
+                box.textContent = data.medical[i].checked ? '✓' : (data.medical[i].crossed ? '✕' : '');
+                r.querySelector('input').value = data.medical[i].notes || '';
+            }
+        });
+    }
+    if(data.teeth){
+        document.querySelectorAll('#tooth-chart .check-box').forEach((t,i) => {
+            t.textContent = data.teeth[i] || '';
+        });
+    }
+}
+
+async function saveSheet(){
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get('patient_id');
+    const data = getSheetData();
+    const res = await fetch('/api/case-sheets/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({patient_id: pid, sheet_type: 'oral_surgery', data: data})
+    });
+    const result = await res.json();
+    if(result.status === 'ok') alert('Case sheet saved successfully!');
+}
+
+// Load patient info if provided
+const params = new URLSearchParams(window.location.search);
+const pid = params.get('patient_id');
+const pname = params.get('patient_name');
+if(pname){
+    document.getElementById('patient-info').textContent = 'Patient: ' + pname;
+    document.getElementById('cs-name').value = pname;
+}
+document.getElementById('cs-date').value = new Date().toISOString().split('T')[0];
+
+lucide.createIcons();
+</script>
+</body>
+</html>
