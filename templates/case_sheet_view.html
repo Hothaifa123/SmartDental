@@ -1,211 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oral Surgery Case Sheet - Smart Dental</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root{--teal:#0d9488;--bg:#f0fdfa;--text:#1a2e2b;--card:#fff}
-.dark{--teal:#14b8a6;--bg:#0f172a;--text:#e2e8f0;--card:#1e293b}
-body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text)}
-.container{max-width:950px;margin:0 auto;padding:15px}
-.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;background:var(--card);padding:12px 16px;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.btn{background:var(--teal);color:#fff;padding:8px 14px;border-radius:10px;font-weight:600;border:none;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:5px}
-.btn:hover{opacity:0.9}.btn-red{background:#ef4444}.btn-blue{background:#6366f1}.btn-gray{background:#6b7280}
-.a4-sheet{background:white;padding:35px 40px;box-shadow:0 8px 30px rgba(0,0,0,.12);font-family:'Times New Roman',serif;color:#000;max-width:794px;margin:0 auto;min-height:900px}
-.sheet-header{display:grid;grid-template-columns:1fr 90px 1fr;gap:10px;align-items:start;margin-bottom:8px}
-.sheet-title{text-align:center;margin:6px 0 10px;font-weight:700;font-size:17px;text-decoration:underline}
-.section{margin-top:8px}
-.section-head{font-weight:700;font-size:12px;margin-bottom:2px;border-bottom:1px solid #ddd;padding-bottom:1px}
-.field-row{display:flex;gap:6px;margin:3px 0;align-items:flex-end;flex-wrap:wrap}
-.field{display:flex;align-items:flex-end;gap:2px}
-.field label{font-weight:600;font-size:10px;white-space:nowrap}
-.field input,.field select{border:none;border-bottom:1px dotted #888;outline:none;padding:2px 3px;font:12px 'Times New Roman',serif;background:transparent}
-.field input:focus,.field select:focus{background:rgba(13,148,136,.04)}
-textarea{width:100%;border:1px solid #ddd;min-height:35px;padding:4px;font:12px 'Times New Roman',serif;outline:none;resize:vertical;background:repeating-linear-gradient(to bottom,transparent 0,transparent 18px,#ddd 19px,transparent 20px)}
-textarea:focus{border-color:var(--teal)}
-.check-row{display:flex;align-items:center;gap:5px;margin:2px 0}
-.check-box{width:14px;height:14px;border:1px solid #666;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;user-select:none;background:#fff;flex:none}
-.check-box.checked{background:#d1fae5;color:#065f46;font-weight:700}
-.check-box.crossed{background:#fee2e2;color:#991b1b;font-weight:700}
-.check-box.normal{background:#e3f2fd;border-color:#1c67a5;color:#1c67a5;font-weight:700}
-.check-box.middle{background:#f3e5f5;border-color:#6b46c1;color:#6b46c1;font-weight:700}
-.check-box.abnormal{background:#ffebee;border-color:#c7352e;color:#c7352e;font-weight:700}
-.check-row span{font-size:10px}
-.check-row input{flex:1;border:none;border-bottom:1px dotted #999;outline:none;font:10px 'Times New Roman',serif;background:transparent;margin-left:3px}
-.tooth-chart-wrap{display:flex;gap:8px;align-items:flex-start;margin:8px 0}
-.tooth-legend{font-size:9px;line-height:1.6;width:90px}
-.tooth-grid{border:1px solid #999;display:grid;grid-template-columns:repeat(16,1fr);max-width:380px}
-.tooth-cell{border-right:1px solid #999;display:flex;align-items:center;justify-content:center;font-size:9px;min-height:20px;cursor:pointer}
-.tooth-cell:last-child{border-right:none}
-.tooth-cell.mark-cell{font-weight:700;font-size:12px}
-.tooth-cell.mark-cell:hover{background:#f0fdfa}
-.tooth-number{font-weight:700;font-size:10px;cursor:default;border-top:1px solid #999;border-bottom:1px solid #999}
-.palette{position:fixed;z-index:50;background:#fff;border:1px solid #ccc;box-shadow:0 8px 20px rgba(0,0,0,.15);border-radius:10px;padding:6px;display:none;gap:4px;flex-wrap:wrap}
-.palette button{border:1px solid #ddd;background:#fff;border-radius:6px;width:26px;height:24px;cursor:pointer;font-weight:700;font-size:12px}
-.palette button:hover{background:#f5f5f5}
-.red{color:#c7352e}.blue{color:#1c67a5}
-.dropdown{position:absolute;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:20;max-height:150px;overflow-y:auto;width:100%;display:none}
-.dropdown-item{padding:6px 10px;font-size:11px;cursor:pointer;border-bottom:1px solid #eee;font-family:'Times New Roman',serif}
-.dropdown-item:hover{background:#f0fdfa}
-.dropdown-item:last-child{border-bottom:none}
-.treatment-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
-.plan-row{display:flex;gap:4px;margin:2px 0;align-items:flex-end}
-.plan-row span{font-weight:700;font-size:10px}
-.plan-row input{flex:1;border:none;border-bottom:1px dotted #888;outline:none;font:10px 'Times New Roman',serif;background:transparent}
-.score-table{border-collapse:collapse;width:100%;font-size:9px}
-.score-table td,.score-table th{border:1px solid #999;padding:2px 4px}
-.score-table th{background:#f5f5f5;font-weight:700}
-@media print{body{background:white}.toolbar,.container>*:not(.a4-sheet){display:none}.a4-sheet{box-shadow:none;padding:20px;max-width:100%}}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="toolbar">
-<h2 class="text-lg font-bold">📋 Oral Surgery Case Sheet</h2>
-<div class="flex gap-2 flex-wrap">
-<button class="btn" onclick="document.getElementById('logoInput').click()"><i data-lucide="image-up"></i> Logo</button>
-<input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadLogo(event)">
-<button class="btn btn-blue" onclick="downloadPDF()"><i data-lucide="file-down"></i> PDF</button>
-<button class="btn" onclick="saveSheet()"><i data-lucide="save"></i> Save</button>
-<button class="btn btn-gray" onclick="window.print()"><i data-lucide="printer"></i> Print</button>
-<button class="btn btn-red" onclick="window.history.back()"><i data-lucide="x"></i> Close</button>
-</div>
-</div>
-
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Oral Surgery Case Sheet - Smart Dental</title><script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><style>body{font-family:system-ui,sans-serif;background:#f0fdfa;margin:0}.toolbar{display:flex;justify-content:space-between;padding:10px;background:#0d9488;color:#fff;flex-wrap:wrap;gap:8px}.a4-sheet{background:white;margin:20px auto;padding:40px;max-width:794px;box-shadow:0 0 20px rgba(0,0,0,.1);font-family:'Times New Roman',serif;color:#000;min-height:1000px}.sheet-title{text-align:center;font-size:20px;font-weight:700;text-decoration:underline;margin-bottom:15px}.field-row{display:flex;gap:10px;margin:5px 0;flex-wrap:wrap}.field{display:flex;align-items:flex-end;gap:3px}.field label{font-size:11px;white-space:nowrap}.field input,.field select{border:none;border-bottom:1px dotted #666;outline:none;font:12px 'Times New Roman',serif;background:transparent}textarea{width:100%;border:1px solid #ccc;font:12px 'Times New Roman',serif;resize:vertical;background:repeating-linear-gradient(to bottom,transparent 0,transparent 18px,#ddd 19px)}.check-row{display:flex;align-items:center;gap:5px;margin:2px 0}.check-box{width:14px;height:14px;border:1px solid #666;cursor:pointer;background:#fff}.check-box.checked{background:#d1fae5}.check-box.crossed{background:#fee2e2}.check-box.normal{background:#e3f2fd}.check-box.middle{background:#f3e5f5}.check-box.abnormal{background:#ffebee}.tooth-grid{display:grid;grid-template-columns:repeat(16,1fr);border:1px solid #999;max-width:380px}.tooth-cell{border-right:1px solid #999;display:flex;align-items:center;justify-content:center;font-size:10px;min-height:20px;cursor:pointer}.palette{position:fixed;background:#fff;border:1px solid #ccc;padding:5px;display:none;gap:3px;z-index:99}.dropdown{position:absolute;background:#fff;border:1px solid #ccc;display:none;z-index:20;max-height:150px;overflow-y:auto;width:100%}.dropdown-item{padding:5px;font-size:11px;cursor:pointer}.dropdown-item:hover{background:#f0fdfa}.btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;color:#fff}.btn-blue{background:#6366f1}.btn-red{background:#ef4444}.btn-gray{background:#6b7280}@media print{body{background:white}.toolbar{display:none}.a4-sheet{box-shadow:none;padding:20px}}</style></head><body>
+<div class="toolbar"><h2>📋 Oral Surgery Case Sheet</h2><div><button class="btn" onclick="document.getElementById('logoInput').click()">🖼 Logo</button><input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadLogo(event)"><button class="btn btn-blue" onclick="downloadPDF()">📥 PDF</button><button class="btn" onclick="saveSheet()">💾 Save</button><button class="btn btn-gray" onclick="window.print()">🖨 Print</button><button class="btn btn-red" onclick="window.history.back()">✕ Close</button></div></div>
 <div class="a4-sheet" id="a4-sheet">
-<div class="sheet-header">
-<div style="font-size:12px;font-weight:700"><div>SMART DENTAL PRO</div><div>ORAL SURGERY DEPT.</div></div>
-<div style="display:flex;align-items:center;justify-content:center;height:65px">
-<div style="width:65px;height:65px;border:1px solid #ccc;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden"><img id="logoImage" src="" alt="Logo" style="max-width:100%;max-height:100%"></div>
-</div>
-<div style="border:1px solid #999;padding:4px;font-size:9px">
-<div>Start Time: <input id="startTime" style="width:45px;border:none;border-bottom:1px dotted #999;outline:none;font-size:9px;background:transparent"></div>
-<div>Cleanliness: <input id="cleanliness" style="width:35px;border:none;border-bottom:1px dotted #999;outline:none;font-size:9px;background:transparent"></div>
-<div>Spittoon( ) Floor( ) IC( )</div>
-</div>
+<div style="display:flex;justify-content:space-between;align-items:start">
+<div><b>SMART DENTAL PRO</b><br>ORAL SURGERY DEPT.</div>
+<div style="width:70px;height:70px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center"><img id="logoImage" src="" style="max-width:100%;max-height:100%"></div>
+<div style="border:1px solid #ccc;padding:5px;font-size:10px">Start Time: <input id="startTime" style="width:45px;border:none;border-bottom:1px dotted #666"> Cleanliness: <input id="cleanliness" style="width:35px;border:none;border-bottom:1px dotted #666"><br>Spittoon( ) Floor( ) IC( )</div>
 </div>
 <div class="sheet-title">CASE SHEET OF ORAL SURGERY</div>
-
-<div class="section"><div class="section-head">1. Patient Personal Data</div>
+<div><b>1. Patient Personal Data</b></div>
 <div class="field-row">
-<div class="field" style="flex:2"><label>Name:</label><select id="cs-patient-select" onchange="fillPatientData()" style="border:none;border-bottom:1px dotted #888;outline:none;font:12px 'Times New Roman',serif;background:transparent;width:100%"><option value="">Select Patient...</option></select></div>
-<div class="field" style="flex:0.7"><label>Gender:</label><input id="cs-gender" style="width:55px"></div>
-<div class="field" style="flex:0.5"><label>Age:</label><input id="cs-age" style="width:40px"></div>
-<div class="field" style="flex:0.8"><label>Date:</label><input id="cs-date" style="width:100px"></div>
+<div class="field" style="flex:2"><label>Name:</label><select id="cs-patient-select" onchange="fillPatientData()" style="border:none;border-bottom:1px dotted #666;font:12px 'Times New Roman',serif;background:transparent"><option value="">Select Patient...</option></select></div>
+<div class="field" style="flex:0.7"><label>Gender:</label><input id="cs-gender"></div>
+<div class="field" style="flex:0.5"><label>Age:</label><input id="cs-age"></div>
+<div class="field" style="flex:0.8"><label>Date:</label><input id="cs-date"></div>
 </div>
 <div class="field-row">
 <div class="field" style="flex:1.5"><label>Address:</label><input id="cs-address"></div>
 <div class="field" style="flex:1"><label>Occupation:</label><input id="cs-occupation"></div>
-<div class="field" style="flex:0.8"><label>Tel:</label><input id="cs-tel" style="width:120px"></div>
-</div></div>
-
-<div class="section"><div class="section-head">2. Chief Complaint</div><textarea id="cs-chief-complaint" rows="2"></textarea></div>
-<div class="section"><div class="section-head">3. History of Present Illness</div><textarea id="cs-present-illness" rows="2"></textarea></div>
-<div class="section"><div class="section-head">4. Past Dental History</div><textarea id="cs-past-dental" rows="1"></textarea></div>
-<div class="section"><div class="section-head">5. Family History</div><textarea id="cs-family-history" rows="1"></textarea></div>
-
-<div class="section"><div class="section-head">6. Medical History</div><div id="medical-checks"></div></div>
-<div class="section"><div class="section-head">7. Habits</div><textarea id="cs-habits" rows="1"></textarea></div>
-
-<div class="section"><div class="section-head">8. Clinical Examination (Extra-Oral)</div><div id="exam-checks"></div></div>
-
-<div class="section"><div class="section-head">9. Clinical Examination (Intra-Oral)</div>
-<div class="tooth-chart-wrap">
-<div class="tooth-legend">O=Caries<br>F=Filling<br>X=Lost<br>U=Unrestorable<br>NE=Not Erupted</div>
-<div class="tooth-grid" id="tooth-grid"></div>
+<div class="field" style="flex:0.8"><label>Tel:</label><input id="cs-tel"></div>
 </div>
-<div class="check-row"><span>○</span><span>Gingiva:</span><input placeholder="Inflammation, Recession"></div>
-<div class="check-row"><span>○</span><span>Periodontal:</span><input placeholder="Pockets, Mobility"></div>
-<div class="check-row"><span>○</span><span>Occlusion:</span><input placeholder="Malalignment"></div>
-<div class="check-row"><span>○</span><span>Mucosa:</span><input placeholder="Cheeks, Palate, Tongue"></div>
-</div>
-
-<div class="section"><div class="section-head">10. Pre-operative Investigations</div>
-<div style="position:relative"><textarea id="cs-investigations" rows="2" onfocus="showDropdown('investigations-dropdown')" onblur="setTimeout(()=>hideDropdown('investigations-dropdown'),200)"></textarea>
-<div id="investigations-dropdown" class="dropdown"></div></div></div>
-
-<div class="section"><div class="section-head">11. Final Clinical Diagnosis</div>
-<div style="position:relative"><textarea id="cs-diagnosis" rows="2" onfocus="showDropdown('diagnosis-dropdown')" onblur="setTimeout(()=>hideDropdown('diagnosis-dropdown'),200)" oninput="filterDiagnosis()"></textarea>
-<div id="diagnosis-dropdown" class="dropdown"></div></div></div>
-
-<div class="section"><div class="section-head">12. Surgical Treatment Plan & Assessment</div>
-<div class="treatment-grid">
+<div><b>2. Chief Complaint</b></div><textarea id="cs-chief-complaint" rows="2"></textarea>
+<div><b>3. History of Present Illness</b></div><textarea id="cs-present-illness" rows="2"></textarea>
+<div><b>4. Past Dental History</b></div><textarea id="cs-past-dental" rows="1"></textarea>
+<div><b>5. Family History</b></div><textarea id="cs-family-history" rows="1"></textarea>
+<div><b>6. Medical History</b></div><div id="medical-checks"></div>
+<div><b>7. Habits</b></div><textarea id="cs-habits" rows="1"></textarea>
+<div><b>8. Clinical Examination (Extra-Oral)</b></div><div id="exam-checks"></div>
+<div><b>9. Clinical Examination (Intra-Oral)</b></div>
+<div style="display:flex;gap:10px"><div style="font-size:9px">O=Caries<br>F=Filling<br>X=Lost</div><div id="tooth-grid" class="tooth-grid"></div></div>
+<div class="field-row"><span>Gingiva:</span><input style="flex:1"><span>Periodontal:</span><input style="flex:1"></div>
+<div class="field-row"><span>Occlusion:</span><input style="flex:1"><span>Mucosa:</span><input style="flex:1"></div>
+<div><b>10. Pre-operative Investigations</b></div>
+<div style="position:relative"><textarea id="cs-investigations" rows="2" onfocus="showDD('inv-dd')" onblur="hideDD('inv-dd')"></textarea><div id="inv-dd" class="dropdown"></div></div>
+<div><b>11. Final Clinical Diagnosis</b></div>
+<div style="position:relative"><textarea id="cs-diagnosis" rows="2" onfocus="showDD('diag-dd')" onblur="hideDD('diag-dd')" oninput="filterDiag()"></textarea><div id="diag-dd" class="dropdown"></div></div>
+<div><b>12. Surgical Treatment Plan</b></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
 <div>
-<div class="plan-row"><span>1.</span><input class="plan-input"></div>
-<div class="plan-row"><span>2.</span><input class="plan-input"></div>
-<div class="plan-row"><span>3.</span><input class="plan-input"></div>
-<div class="plan-row"><span>4.</span><input class="plan-input"></div>
-<div style="margin-top:8px;font-size:9px">
-<div class="plan-row"><span>Supervisor:</span><input></div>
-<div class="plan-row"><span>Student:</span><input></div>
-<div class="plan-row"><span>Signature:</span><input></div>
+<div class="field-row"><span>1.</span><input class="plan-input"></div>
+<div class="field-row"><span>2.</span><input class="plan-input"></div>
+<div class="field-row"><span>3.</span><input class="plan-input"></div>
+<div class="field-row"><span>4.</span><input class="plan-input"></div>
+<div class="field-row"><span>Supervisor:</span><input></div>
+<div class="field-row"><span>Student:</span><input></div>
+<div class="field-row"><span>Signature:</span><input></div>
+</div>
+<div><table border="1" style="width:100%;font-size:10px"><tr><th>Criteria</th><th>Max</th><th>Score</th></tr><tr><td>Sterilization</td><td>2</td><td></td></tr><tr><td>Case Sheet</td><td>1.5</td><td></td></tr><tr><td>Instruments</td><td>1.5</td><td></td></tr><tr><td>Technique</td><td>5</td><td></td></tr><tr><td><b>Total</b></td><td><b>10</b></td><td></td></tr></table></div>
 </div>
 </div>
-<div>
-<table class="score-table"><tr><th>Criteria</th><th>Max</th><th>Score</th></tr>
-<tr><td>Sterilization</td><td>2</td><td></td></tr>
-<tr><td>Case Sheet</td><td>1.5</td><td></td></tr>
-<tr><td>Instruments</td><td>1.5</td><td></td></tr>
-<tr><td>Technique</td><td>5</td><td></td></tr>
-<tr><td><b>Total</b></td><td><b>10</b></td><td></td></tr></table>
-</div></div></div>
-</div></div>
-
-<div id="palette" class="palette">
-<button data-mark="O" class="red">O</button><button data-mark="O" class="blue">O</button>
-<button data-mark="X" class="red">X</button><button data-mark="X" class="blue">X</button>
-<button data-mark="F" class="blue">F</button><button data-mark="U" class="red">U</button>
-<button data-mark="NE" class="blue">NE</button><button data-mark="">⌫</button>
-</div>
-
+<div id="palette" class="palette"><button data-mark="O" style="color:red">O</button><button data-mark="O" style="color:blue">O</button><button data-mark="X" style="color:red">X</button><button data-mark="X" style="color:blue">X</button><button data-mark="F" style="color:blue">F</button><button data-mark="">⌫</button></div>
 <script>
-const MEDICAL=["Cardiovascular Diseases","Endocrine Disorders / Diabetes","Respiratory Diseases / Asthma","Blood Disorders / Bleeding Tendency","Liver Diseases / Hepatitis","Renal Diseases / Kidney Failure","Allergies (Penicillin, LA, etc.)","Other Systemic Complications"];
-const EXAMS=["Skin Tone & General Appearance","Facial Symmetry & Neck Exam","Temporomandibular Joint (TMJ)","Salivary Glands Function","Mouth Opening Measurement","Lip Competency & Lesions"];
+const MEDICAL=["Cardiovascular Diseases","Endocrine Disorders / Diabetes","Respiratory Diseases / Asthma","Blood Disorders","Liver Diseases / Hepatitis","Renal Diseases","Allergies","Other"];
+const EXAMS=["Skin Tone & Appearance","Facial Symmetry & Neck","TMJ","Salivary Glands","Mouth Opening","Lip Competency"];
 const TEETH=[8,7,6,5,4,3,2,1,1,2,3,4,5,6,7,8];
-const INVESTIGATIONS=["Lab test (Blood test, CBC, BT, CT, Blood Culture)","Intraoral Periapical X-ray (IOPA) / Panoramic Radiograph (OPG)","Advanced Imagingology (CT, CBCT, MRI, Ultrasound)","Incisional / Excisional Histopathological Biopsy","Microbiology test (Gram staining, cultures)"];
-const DIAGNOSES=["Primary deciduous teeth extraction due to physiologic root resorption","Sub-gingival root remnants / retained root tips","Unrestorable deep dental caries reaching pulp floor","Acute periapical inflammation / localized alveolar abscess","Severely mobile tooth due to advanced bone resorption"];
+const INV=["Lab test (CBC, BT, CT)","IOPA / OPG X-ray","CT, CBCT, MRI","Biopsy","Microbiology test"];
+const DIAG=["Deciduous teeth extraction","Root remnants","Unrestorable caries","Periapical abscess","Severe mobility"];
 
-// Build medical
 let mHTML=''; MEDICAL.forEach(m=>mHTML+=`<div class="check-row"><div class="check-box" onclick="toggleMed(this)"></div><span>${m}</span><input placeholder="Notes"></div>`); document.getElementById('medical-checks').innerHTML=mHTML;
-// Build exam
 let eHTML=''; EXAMS.forEach(e=>eHTML+=`<div class="check-row"><div class="check-box" onclick="toggleExam(this)"></div><span>${e}</span><input placeholder="Notes"></div>`); document.getElementById('exam-checks').innerHTML=eHTML;
-// Build tooth chart
-let tHTML='<div class="tooth-row">'; for(let i=0;i<16;i++) tHTML+='<div class="tooth-cell mark-cell" onclick="openPalette(event,this)"></div>'; tHTML+='</div>';
-tHTML+='<div class="tooth-row">'; TEETH.forEach(t=>tHTML+=`<div class="tooth-cell tooth-number">${t}</div>`); tHTML+='</div>';
-tHTML+='<div class="tooth-row">'; for(let i=0;i<16;i++) tHTML+='<div class="tooth-cell mark-cell" onclick="openPalette(event,this)"></div>'; tHTML+='</div>';
-document.getElementById('tooth-grid').innerHTML=tHTML;
-// Build dropdowns
-document.getElementById('investigations-dropdown').innerHTML=INVESTIGATIONS.map(i=>`<div class="dropdown-item" onclick="addToTextarea('cs-investigations','${i.replace(/'/g,"\\'")}')">${i}</div>`).join('');
-document.getElementById('diagnosis-dropdown').innerHTML=DIAGNOSES.map(d=>`<div class="dropdown-item" onclick="addToTextarea('cs-diagnosis','${d.replace(/'/g,"\\'")}')">${d}</div>`).join('');
+let tHTML='<div style="display:grid;grid-template-columns:repeat(16,1fr)">'; for(let i=0;i<16;i++) tHTML+='<div class="tooth-cell mark-cell" onclick="openPal(event,this)"></div>'; tHTML+='</div><div style="display:grid;grid-template-columns:repeat(16,1fr)">'; TEETH.forEach(t=>tHTML+=`<div class="tooth-cell" style="font-weight:700">${t}</div>`); tHTML+='</div><div style="display:grid;grid-template-columns:repeat(16,1fr)">'; for(let i=0;i<16;i++) tHTML+='<div class="tooth-cell mark-cell" onclick="openPal(event,this)"></div>'; tHTML+='</div>'; document.getElementById('tooth-grid').innerHTML=tHTML;
+document.getElementById('inv-dd').innerHTML=INV.map(i=>`<div class="dropdown-item" onclick="addText('cs-investigations','${i}')">${i}</div>`).join('');
+document.getElementById('diag-dd').innerHTML=DIAG.map(d=>`<div class="dropdown-item" onclick="addText('cs-diagnosis','${d}')">${d}</div>`).join('');
 
-function toggleMed(el){if(el.classList.contains('checked')){el.classList.remove('checked');el.classList.add('crossed');el.textContent='✕'}else if(el.classList.contains('crossed')){el.classList.remove('crossed');el.textContent=''}else{el.classList.add('checked');el.textContent='✓'}}
-function toggleExam(el){let states=['','✓','⚠','✕'];let classes=['','normal','middle','abnormal'];let cur=states.indexOf(el.textContent)+1;if(cur>=states.length)cur=0;el.textContent=states[cur];el.className='check-box '+classes[cur]}
-let activeTooth=null;
-function openPalette(e,cell){e.stopPropagation();activeTooth=cell;let p=document.getElementById('palette');p.style.display='flex';p.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';p.style.top=(e.clientY+20)+'px'}
-document.getElementById('palette').querySelectorAll('button').forEach(b=>b.onclick=function(){if(activeTooth){activeTooth.textContent=this.dataset.mark;activeTooth.className='tooth-cell mark-cell '+(this.dataset.mark?'blue':'')}document.getElementById('palette').style.display='none'});
-document.addEventListener('click',()=>document.getElementById('palette').style.display='none');
-function showDropdown(id){document.getElementById(id).style.display='block'}
-function hideDropdown(id){document.getElementById(id).style.display='none'}
-function addToTextarea(textareaId,text){let ta=document.getElementById(textareaId);ta.value=ta.value?ta.value+'\n'+text:text;hideDropdown('investigations-dropdown');hideDropdown('diagnosis-dropdown')}
-function filterDiagnosis(){let filter=document.getElementById('cs-diagnosis').value.toLowerCase();document.querySelectorAll('#diagnosis-dropdown .dropdown-item').forEach(item=>item.style.display=item.textContent.toLowerCase().includes(filter)?'block':'none')}
-
-function uploadLogo(e){let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(ev){document.getElementById('logoImage').src=ev.target.result;localStorage.setItem('caseSheetLogo',ev.target.result)};reader.readAsDataURL(file)}
-if(localStorage.getItem('caseSheetLogo')) document.getElementById('logoImage').src=localStorage.getItem('caseSheetLogo');
-
-async function loadPatients(){let res=await fetch('/api/patients');let patients=await res.json();let select=document.getElementById('cs-patient-select');patients.forEach(p=>{let opt=document.createElement('option');opt.value=p.id;opt.textContent=p.name;opt.dataset.age=p.age||'';opt.dataset.gender=p.gender||'';opt.dataset.phone=p.phone||'';opt.dataset.address=p.address||'';select.appendChild(opt)});document.getElementById('cs-date').value=new Date().toISOString().split('T')[0]}
-function fillPatientData(){let sel=document.getElementById('cs-patient-select');let opt=sel.options[sel.selectedIndex];if(!opt.value)return;document.getElementById('cs-gender').value=opt.dataset.gender;document.getElementById('cs-age').value=opt.dataset.age;document.getElementById('cs-tel').value=opt.dataset.phone;document.getElementById('cs-address').value=opt.dataset.address}
-
-function getData(){return{patient_id:document.getElementById('cs-patient-select').value,gender:document.getElementById('cs-gender').value,age:document.getElementById('cs-age').value,date:document.getElementById('cs-date').value,address:document.getElementById('cs-address').value,occupation:document.getElementById('cs-occupation').value,tel:document.getElementById('cs-tel').value,chief_complaint:document.getElementById('cs-chief-complaint').value,present_illness:document.getElementById('cs-present-illness').value,past_dental:document.getElementById('cs-past-dental').value,family_history:document.getElementById('cs-family-history').value,habits:document.getElementById('cs-habits').value,investigations:document.getElementById('cs-investigations').value,diagnosis:document.getElementById('cs-diagnosis').value,medical:Array.from(document.querySelectorAll('#medical-checks .check-row')).map(r=>({checked:r.querySelector('.check-box').classList.contains('checked'),crossed:r.querySelector('.check-box').classList.contains('crossed'),notes:r.querySelector('input').value})),exam:Array.from(document.querySelectorAll('#exam-checks .check-row')).map(r=>({state:r.querySelector('.check-box').textContent,notes:r.querySelector('input').value})),teeth:Array.from(document.querySelectorAll('#tooth-grid .mark-cell')).map(t=>t.textContent),gingiva:document.querySelectorAll('#a4-sheet .check-row input')[0]?.value||'',periodontal:document.querySelectorAll('#a4-sheet .check-row input')[1]?.value||'',occlusion:document.querySelectorAll('#a4-sheet .check-row input')[2]?.value||'',mucosa:document.querySelectorAll('#a4-sheet .check-row input')[3]?.value||'',treatment:Array.from(document.querySelectorAll('.plan-input')).map(i=>i.value),supervisor:document.querySelectorAll('.plan-row input')[4]?.value||'',student:document.querySelectorAll('.plan-row input')[5]?.value||'',signature:document.querySelectorAll('.plan-row input')[6]?.value||''}}
-
-async function saveSheet(){let data=getData();if(!data.patient_id)return alert('Select patient first');let res=await fetch('/api/case-sheets/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient_id:data.patient_id,sheet_type:'oral_surgery',data:data})});let r=await res.json();if(r.status==='ok')alert('Saved! ID:'+r.id)}
-
-async function downloadPDF(){let data=getData();if(!data.patient_id)return alert('Select patient');await saveSheet();let canvas=await html2canvas(document.getElementById('a4-sheet'),{scale:2,backgroundColor:'#ffffff'});let imgData=canvas.toDataURL('image/png');let{jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let width=190;let height=canvas.height*width/canvas.width;pdf.addImage(imgData,'PNG',10,10,width,height);pdf.save('Oral_Surgery_Case_Sheet.pdf')}
-
-loadPatients();lucide.createIcons();
-</script>
-</body>
-</html>
+function toggleMed(el){el.classList.toggle('checked');el.textContent=el.classList.contains('checked')?'✓':''}
+function toggleExam(el){let states=['','✓','⚠','✕'];let cs=['','normal','middle','abnormal'];let i=states.indexOf(el.textContent)+1;if(i>=states.length)i=0;el.textContent=states[i];el.className='check-box '+cs[i]}
+let activeCell=null;
+function openPal(e,cell){e.stopPropagation();activeCell=cell;let p=document.getElementById('palette');p.style.display='flex';p.style.left=e.clientX+'px';p.style.top=(e.clientY+20)+'px'}
+document.getElementById('palette').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(activeCell)activeCell.textContent=b.dataset.mark;document.getElementById('palette').style.display='none'});
+function showDD(id){document.getElementById(id).style.display='block'}
+function hideDD(id){setTimeout(()=>document.getElementById(id).style.display='none',200)}
+function addText(id,text){let ta=document.getElementById(id);ta.value=ta.value?ta.value+'\n'+text:text}
+function filterDiag(){let f=document.getElementById('cs-diagnosis').value.toLowerCase();document.querySelectorAll('#diag-dd .dropdown-item').forEach(d=>d.style.display=d.textContent.toLowerCase().includes(f)?'block':'none')}
+function uploadLogo(e){let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=ev=>{document.getElementById('logoImage').src=ev.target.result;localStorage.setItem('csLogo',ev.target.result)};reader.readAsDataURL(file)}
+if(localStorage.getItem('csLogo'))document.getElementById('logoImage').src=localStorage.getItem('csLogo');
+async function loadPatients(){let res=await fetch('/api/patients');let pts=await res.json();let sel=document.getElementById('cs-patient-select');pts.forEach(p=>{let o=document.createElement('option');o.value=p.id;o.textContent=p.name;o.dataset.age=p.age;o.dataset.gender=p.gender;o.dataset.phone=p.phone;sel.appendChild(o)});document.getElementById('cs-date').value=new Date().toISOString().split('T')[0]}
+function fillPatientData(){let o=document.getElementById('cs-patient-select').selectedOptions[0];if(!o.value)return;document.getElementById('cs-gender').value=o.dataset.gender;document.getElementById('cs-age').value=o.dataset.age;document.getElementById('cs-tel').value=o.dataset.phone}
+function getData(){return{patient_id:document.getElementById('cs-patient-select').value,gender:document.getElementById('cs-gender').value,age:document.getElementById('cs-age').value,date:document.getElementById('cs-date').value,address:document.getElementById('cs-address').value,occupation:document.getElementById('cs-occupation').value,tel:document.getElementById('cs-tel').value,chief_complaint:document.getElementById('cs-chief-complaint').value,present_illness:document.getElementById('cs-present-illness').value,past_dental:document.getElementById('cs-past-dental').value,family_history:document.getElementById('cs-family-history').value,habits:document.getElementById('cs-habits').value,investigations:document.getElementById('cs-investigations').value,diagnosis:document.getElementById('cs-diagnosis').value,medical:Array.from(document.querySelectorAll('#medical-checks .check-row')).map(r=>({checked:r.querySelector('.check-box').classList.contains('checked'),notes:r.querySelector('input').value})),exam:Array.from(document.querySelectorAll('#exam-checks .check-row')).map(r=>({state:r.querySelector('.check-box').textContent,notes:r.querySelector('input').value})),teeth:Array.from(document.querySelectorAll('.mark-cell')).map(t=>t.textContent),treatment:Array.from(document.querySelectorAll('.plan-input')).map(i=>i.value)}}
+async function saveSheet(){let d=getData();if(!d.patient_id)return alert('Select patient');let r=await fetch('/api/case-sheets/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient_id:d.patient_id,sheet_type:'oral_surgery',data:d})});let j=await r.json();if(j.status==='ok')alert('Saved!')}
+async function downloadPDF(){let d=getData();if(!d.patient_id)return alert('Select patient');await saveSheet();let canvas=await html2canvas(document.getElementById('a4-sheet'),{scale:2,background:'#fff'});let img=canvas.toDataURL('image/png');let{jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=190,h=canvas.height*w/canvas.width;pdf.addImage(img,'PNG',10,10,w,h);pdf.save('Oral_Surgery_Case_Sheet.pdf')}
+loadPatients();
+</script></body></html>

@@ -483,3 +483,32 @@ def case_sheet_detail(sheet_type):
 @login_required
 def case_sheet_oral_surgery():
     return render_template('case_sheet_oral_surgery.html')
+
+@app.route('/case-sheet/oral-surgery')
+@login_required
+def case_sheet_oral():
+    return render_template('case_sheet_view.html')
+
+CASE_SHEET_TYPES = {
+    "oral_surgery": {"name": "Oral Surgery"},
+    "operative": {"name": "Operative Dentistry"},
+    "endodontic": {"name": "Endodontic"},
+    "periodontic": {"name": "Periodontic"},
+    "prosthodontic": {"name": "Prosthodontic"},
+    "pediatric": {"name": "Pediatric Dentistry"},
+    "orthodontic": {"name": "Orthodontic"}
+}
+
+@app.route('/api/case-sheets')
+@login_required
+def case_sheets():
+    return jsonify(CASE_SHEET_TYPES)
+
+@app.route('/api/case-sheets/save', methods=['POST'])
+@login_required
+def save_case_sheet():
+    db = get_db()
+    d = request.json
+    cs = CaseSheet(patient_id=d['patient_id'], doctor_id=current_user.id, sheet_type=d['sheet_type'], data_json=json.dumps(d['data']))
+    db.add(cs); db.commit()
+    return jsonify({'status':'ok', 'id':cs.id})

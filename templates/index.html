@@ -215,7 +215,7 @@ let D=[],P=[],RX=[],RD=[],SET={},EM=[],USERS=[],DISEASES={},SELECTED_DRUG=null,P
 let isAdmin={{ 'true' if current_user.is_admin else 'false' }};
 let CASE_SHEETS={};
 function renderCaseSheets(){let grid=document.getElementById("case-sheets-grid");grid.innerHTML=Object.keys(CASE_SHEETS).map(key=>`<div class="card text-center cursor-pointer hover:shadow-md" onclick="openCaseSheet('${key}')"><div class="text-3xl mb-2">📋</div><h4 class="font-bold">${CASE_SHEETS[key].name}</h4></div>`).join("")}
-function openCaseSheet(type){ if(type==="oral_surgery"){ window.open("/case-sheet/oral-surgery", "_blank"); } else { alert(CASE_SHEETS[type]?.name + " form coming soon!"); } }
+function openCaseSheet(type){ if(type==="oral_surgery"){ window.location.href="/case-sheet/oral-surgery"; } else { alert("Coming soon!"); } }
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
 function pickSection(id){ switchV(id); if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open'); }
 async function api(u,o={}){const r=await fetch(u,o);return r.json()}
@@ -303,3 +303,12 @@ load();
 </script>
 </body>
 </html>
+<style>
+.dark .nav-item i, .dark .nav-item svg { color: inherit !important; }
+.dark .nav-item { color: #ccf0e9 !important; }
+.dark .card, .dark .input, .dark .btn { color: var(--text) !important; }
+.dark .stat-card { color: #fff !important; }
+.dark .rx-paper { color: #1a2e2b !important; }
+.dark .tab-btn { color: #555 !important; }
+.dark .tab-btn.active { color: #fff !important; }
+</style>
