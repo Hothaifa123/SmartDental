@@ -513,30 +513,6 @@ def get_case_sheets(sheet_type):
 def case_sheet_oral_view():
     return render_template('case_sheet_view.html')
 
-@app.route('/api/case-sheets/save', methods=['POST'])
-@login_required
-def save_case_sheet():
-    db = get_db()
-    d = request.json
-    cs = CaseSheet(
-        patient_id=d['patient_id'],
-        doctor_id=current_user.id,
-        sheet_type=d['sheet_type'],
-        data_json=json.dumps(d['data'])
-    )
-    db.add(cs); db.commit()
-    return jsonify({'status':'ok', 'id':cs.id})
-
-@app.route('/api/case-sheets/<sheet_type>')
-@login_required
-def get_case_sheets(sheet_type):
-    db = get_db()
-    pid = request.args.get('patient_id')
-    q = db.query(CaseSheet).filter_by(doctor_id=current_user.id, sheet_type=sheet_type)
-    if pid: q = q.filter_by(patient_id=pid)
-    sheets = q.order_by(CaseSheet.created_at.desc()).all()
-    return jsonify([{'id':s.id, 'patient_id':s.patient_id, 'patient_name':s.patient.name if s.patient else '', 'data_json':s.data_json, 'created_at':s.created_at.isoformat() if s.created_at else None} for s in sheets])
-
 @app.route('/api/case-sheets/delete/<int:csid>', methods=['DELETE'])
 @login_required
 def delete_case_sheet(csid):
