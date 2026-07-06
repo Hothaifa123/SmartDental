@@ -478,3 +478,8 @@ def case_sheet_detail(sheet_type):
     if sheet_type not in CASE_SHEET_TYPES:
         return jsonify({'error': 'Invalid sheet type'}), 404
     return jsonify(CASE_SHEET_TYPES[sheet_type])
+
+@app.route('/case-sheet/oral-surgery')
+@login_required
+def case_sheet_oral_surgery():
+    return render_template('case_sheet_oral_surgery.html')

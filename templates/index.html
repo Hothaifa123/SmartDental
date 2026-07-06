@@ -215,7 +215,7 @@ let D=[],P=[],RX=[],RD=[],SET={},EM=[],USERS=[],DISEASES={},SELECTED_DRUG=null,P
 let isAdmin={{ 'true' if current_user.is_admin else 'false' }};
 let CASE_SHEETS={};
 function renderCaseSheets(){let grid=document.getElementById("case-sheets-grid");grid.innerHTML=Object.keys(CASE_SHEETS).map(key=>`<div class="card text-center cursor-pointer hover:shadow-md" onclick="openCaseSheet('${key}')"><div class="text-3xl mb-2">📋</div><h4 class="font-bold">${CASE_SHEETS[key].name}</h4></div>`).join("")}
-function openCaseSheet(type){let sheet=CASE_SHEETS[type];let form=document.getElementById("case-sheet-form");form.classList.remove("hidden");form.innerHTML=`<h3 class="font-bold mb-2">${sheet.name}</h3><div class="grid-2">${sheet.fields.map(f=>`<div><label class="text-sm font-bold">${f.replace(/_/g," ")}</label><input class="input" id="cs-${f}"></div>`).join("")}</div><button class="btn mt-3" onclick="alert('Saved!');document.getElementById('case-sheet-form').classList.add('hidden')">Save</button><button class="btn mt-2" style="background:#888" onclick="document.getElementById('case-sheet-form').classList.add('hidden')">Cancel</button>`}
+function openCaseSheet(type){ if(type==="oral_surgery"){ window.open("/case-sheet/oral-surgery", "_blank"); } else { alert(CASE_SHEETS[type]?.name + " form coming soon!"); } }
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
 function pickSection(id){ switchV(id); if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open'); }
 async function api(u,o={}){const r=await fetch(u,o);return r.json()}
