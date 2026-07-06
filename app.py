@@ -409,3 +409,72 @@ def admin_stats():
     return jsonify(stats)
 
 # الحصول على وصفات مريض محدد
+
+# ---------- CLINICAL IMAGES ----------
+@app.route('/api/images', methods=['GET','POST'])
+@login_required
+def clinical_images():
+    db = get_db()
+    if request.method == 'POST':
+        file = request.files.get('image')
+        if file:
+            fname = f"img_{current_user.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
+            file.save(os.path.join(UPLOAD_FOLDER, fname))
+            img = ClinicalImage(
+                patient_id=request.form.get('patient_id'),
+                doctor_id=current_user.id,
+                filename=f'/uploads/{fname}',
+                category=request.form.get('category', ''),
+                notes=request.form.get('notes', '')
+            )
+            db.add(img); db.commit()
+            return jsonify({'status':'ok', 'path': f'/uploads/{fname}'})
+        return jsonify({'error':'no file'}), 400
+    pid = request.args.get('patient_id')
+    q = db.query(ClinicalImage).filter_by(doctor_id=current_user.id)
+    if pid: q = q.filter_by(patient_id=pid)
+    return jsonify([{'id':i.id, 'patient_id':i.patient_id, 'filename':i.filename, 'category':i.category, 'notes':i.notes, 'created_at':i.created_at.isoformat() if i.created_at else None} for i in q.order_by(ClinicalImage.created_at.desc()).all()])
+
+# ---------- CASE SHEETS ----------
+CASE_SHEET_TYPES = {
+    "oral_surgery": {
+        "name": "Oral Surgery",
+        "fields": ["tooth_number", "procedure", "anesthesia", "incision_type", "sutures", "bone_graft", "complications", "post_op_instructions"]
+    },
+    "operative": {
+        "name": "Operative Dentistry",
+        "fields": ["tooth_number", "caries_depth", "restoration_type", "material_used", "shade", "isolation_method", "post_op_sensitivity"]
+    },
+    "endodontic": {
+        "name": "Endodontic",
+        "fields": ["tooth_number", "diagnosis", "working_length", "files_used", "irrigant", "obturation_technique", "sealer", "post_op_pain"]
+    },
+    "periodontic": {
+        "name": "Periodontic",
+        "fields": ["probing_depth", "bleeding_on_probing", "mobility", "furcation", "treatment_type", "scaling_method", "medications"]
+    },
+    "prosthodontic": {
+        "name": "Prosthodontic",
+        "fields": ["tooth_number", "preparation_type", "impression_material", "temporary_type", "shade", "cement_type", "adjustments"]
+    },
+    "pediatric": {
+        "name": "Pediatric Dentistry",
+        "fields": ["tooth_number", "behavior_rating", "treatment_type", "anesthesia", "preventive_measures", "parent_instructions"]
+    },
+    "orthodontic": {
+        "name": "Orthodontic",
+        "fields": ["malocclusion_class", "appliance_type", "archwire", "elastic_pattern", "oral_hygiene", "next_adjustment"]
+    }
+}
+
+@app.route('/api/case-sheets')
+@login_required
+def case_sheets():
+    return jsonify(CASE_SHEET_TYPES)
+
+@app.route('/api/case-sheets/<sheet_type>', methods=['GET','POST'])
+@login_required
+def case_sheet_detail(sheet_type):
+    if sheet_type not in CASE_SHEET_TYPES:
+        return jsonify({'error': 'Invalid sheet type'}), 404
+    return jsonify(CASE_SHEET_TYPES[sheet_type])
