@@ -84,6 +84,17 @@ class Appointment(Base):
     reason = Column(Text)
     patient = relationship('Patient')
 
+class CaseSheet(Base):
+    __tablename__ = 'case_sheets'
+    id = Column(Integer, primary_key=True)
+    patient_id = Column(Integer, ForeignKey('patients.id'))
+    doctor_id = Column(Integer, ForeignKey('users.id'))
+    sheet_type = Column(String(100))
+    data_json = Column(Text)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    patient = relationship('Patient')
+
 class ClinicalImage(Base):
     __tablename__ = 'clinical_images'
     id = Column(Integer, primary_key=True)
