@@ -8,8 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
     <meta name="theme-color" content="#0d9488">
     <style>
-        :root{--teal:#0d9488;--bg:#f0fdfa;--red:#ef4444;--amber:#f59e0b}
-.dark{--teal:#14b8a6;--bg:#0f172a;--red:#ef4444;--amber:#f59e0b;--text:#e2e8f0;--card:#1e293b;--input-bg:#334155;--input-border:#475569}
+        :root{--teal:#0d9488;--bg:#f0fdfa;--red:#ef4444;--amber:#f59e0b;--text:#1a2e2b;--card:#fff;--input-bg:#fff;--input-border:#e2e8f0}
+        .dark{--teal:#14b8a6;--bg:#0f172a;--red:#ef4444;--amber:#f59e0b;--text:#e2e8f0;--card:#1e293b;--input-bg:#334155;--input-border:#475569}
         *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}
         .app{display:flex;min-height:100vh}
         .sidebar{width:260px;background:linear-gradient(180deg,#0f766e,#115e59);color:#fff;padding:20px 14px;position:fixed;left:0;top:0;bottom:0;z-index:40;overflow-y:auto;transition:transform 0.3s ease}
@@ -18,13 +18,12 @@
         .nav-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;cursor:pointer;transition:.2s;margin:3px 0;color:#ccf0e9;font-size:14px;border:none;background:none;width:100%;text-align:left}
         .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.15);color:#fff}
         .nav-item.danger{color:#fca5a5}
-        .card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:14px}
-        .input{border:2px solid #e2e8f0;border-radius:12px;padding:10px 12px;width:100%;outline:none;font-size:14px;background:#fff}
+        .card{background:var(--card);border-radius:20px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:14px}
+        .input{border:2px solid var(--input-border);border-radius:12px;padding:10px 12px;width:100%;outline:none;font-size:14px;background:var(--input-bg);color:var(--text)}
         .input:focus{border-color:var(--teal)}
         .btn{background:var(--teal);color:#fff;padding:10px 18px;border-radius:12px;font-weight:600;border:none;cursor:pointer;font-size:14px;width:100%}
         .btn:hover{opacity:0.9}.btn-red{background:var(--red)}.btn-amber{background:var(--amber)}
-        .rx-paper{background:#fff;padding:25px;border:1px solid #ddd;max-width:420px;margin:0 auto;box-shadow:0 8px 30px rgba(0,0,0,.08);font-size:13px;position:relative;overflow:hidden}
-        .rx-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.04;font-size:120px;font-weight:900;pointer-events:none}
+        .rx-paper{background:var(--card);padding:25px;border:1px solid #ddd;max-width:420px;margin:0 auto;box-shadow:0 8px 30px rgba(0,0,0,.08);font-size:13px;position:relative;overflow:hidden;color:#1a2e2b}
         .view{display:none}.view.active{display:block}
         .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
         .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -35,11 +34,16 @@
         .drug-warning{background:#fee2e2!important;border-color:#ef4444!important}
         .tab-btn{background:#e2e8f0;border:none;padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;font-weight:600;color:#555}
         .tab-btn.active{background:var(--teal);color:#fff}
-        .tab-content{display:none;background:#fff;border-radius:0 0 16px 16px;padding:16px}
+        .tab-content{display:none;background:var(--card);border-radius:0 0 16px 16px;padding:16px}
         .tab-content.active{display:block}
         .stat-card{background:linear-gradient(135deg,#0d9488,#0f766e);color:#fff;border-radius:16px;padding:14px;text-align:center}
         .stat-card h3{font-size:12px;opacity:0.9;margin-bottom:4px}
         .stat-card h2{font-size:24px;font-weight:800}
+        .dark .nav-item i, .dark .nav-item svg { color: inherit !important; }
+        .dark .nav-item { color: #ccf0e9 !important; }
+        .dark .card, .dark .input, .dark .btn, .dark .tab-content, .dark .tab-btn { color: var(--text) !important; }
+        .dark .stat-card { color: #fff !important; }
+        .dark .rx-paper { color: #1a2e2b !important; }
         @media(max-width:768px){
             .sidebar{transform:translateX(-100%)}
             .sidebar.open{transform:translateX(0)}
@@ -63,8 +67,7 @@
             <button class="nav-item" data-v="rx" onclick="pickSection('rx')"><i data-lucide="zap"></i> Instant Rx</button>
             <button class="nav-item" data-v="patients" onclick="pickSection('patients')"><i data-lucide="users"></i> Patients</button>
             <button class="nav-item" data-v="appointments" onclick="pickSection('appointments')"><i data-lucide="calendar"></i> Appointments</button>
-<button class="nav-item" data-v="case-sheets" onclick="pickSection('case-sheets')"><i data-lucide="clipboard-check"></i> Case Sheets</button>
-<button class="nav-item" data-v="case-sheets" onclick="pickSection('case-sheets')"><i data-lucide="clipboard-check"></i> Case Sheets</button>
+            <button class="nav-item" data-v="case-sheets" onclick="pickSection('case-sheets')"><i data-lucide="clipboard-check"></i> Case Sheets</button>
             <button class="nav-item" data-v="ai" onclick="pickSection('ai')"><i data-lucide="sparkles"></i> AI Assistant</button>
             <button class="nav-item" data-v="library" onclick="pickSection('library')"><i data-lucide="pill"></i> Drug Library</button>
             <button class="nav-item" data-v="ready" onclick="pickSection('ready')"><i data-lucide="clipboard-list"></i> Ready Rx</button>
@@ -74,8 +77,7 @@
             <button class="nav-item" data-v="admin-drugs" onclick="pickSection('admin-drugs')"><i data-lucide="shield"></i> Manage Drugs</button>
             <button class="nav-item" data-v="admin-users" onclick="pickSection('admin-users')"><i data-lucide="user-cog"></i> Manage Users</button>
             {% endif %}
-<button class="nav-item" onclick="document.getElementById('html-root').classList.toggle('dark')"><i data-lucide="moon"></i> Dark Mode</button>
-<button class="nav-item" onclick="toggleDarkMode()"><i data-lucide="moon"></i> Dark Mode</button>
+            <button class="nav-item" onclick="toggleDarkMode()"><i data-lucide="moon"></i> Dark Mode</button>
             <a href="/logout" class="nav-item danger"><i data-lucide="log-out"></i> Logout</a>
         </nav>
         <div class="mt-auto pt-4 border-t border-teal-700 text-xs text-teal-200">
@@ -145,13 +147,12 @@
                         <button class="tab-btn" onclick="showTab('dental')">Dental</button>
                         <button class="tab-btn" onclick="showTab('visits')">Visits</button>
                         <button class="tab-btn" onclick="showTab('rx')">Prescriptions</button>
+                        <button class="tab-btn" onclick="showTab('images')">Images</button>
                     </div>
-                    <div id="tab-general" class="tab-content active"></div><div id="tab-medical" class="tab-content"></div><div id="tab-dental" class="tab-content"></div><div id="tab-visits" class="tab-content"></div><div id="tab-rx" class="tab-content"></div>
+                    <div id="tab-general" class="tab-content active"></div><div id="tab-medical" class="tab-content"></div><div id="tab-dental" class="tab-content"></div><div id="tab-visits" class="tab-content"></div><div id="tab-rx" class="tab-content"></div><div id="tab-images" class="tab-content"></div>
                 </div>
             </div>
         </section>
-<section id="case-sheets" class="view"><h2 class="text-xl font-bold mb-3">📋 Case Sheets</h2><div id="case-sheets-grid" class="grid-3"></div><div id="case-sheet-form" class="card hidden mt-3"></div></section>
-<section id="case-sheets" class="view"><h2 class="text-xl font-bold mb-3">📋 Case Sheets</h2><div id="case-sheets-grid" class="grid-3"></div></section>
         <section id="appointments" class="view">
             <h2 class="text-xl font-bold mb-3">📅 Appointments</h2>
             <div class="card"><h3 class="font-bold mb-2">New Appointment</h3>
@@ -160,6 +161,10 @@
                 <button class="btn" onclick="addAppointment()">Add Appointment</button>
             </div>
             <div id="appointments-list" class="space-y-2 mt-3"></div>
+        </section>
+        <section id="case-sheets" class="view">
+            <h2 class="text-xl font-bold mb-3">📋 Case Sheets</h2>
+            <div id="case-sheets-grid" class="grid-3"></div>
         </section>
         <section id="ai" class="view"><h2 class="text-xl font-bold mb-3">🤖 AI Analysis</h2>
             <div class="card"><textarea id="ai-symptoms" class="input mb-3" rows="3" placeholder="Symptoms..."></textarea>
@@ -186,9 +191,7 @@
         <section id="settings" class="view"><h2 class="text-xl font-bold mb-3">⚙️ Settings</h2>
             <div class="card max-w-md">
                 <h3 class="font-bold mb-2">🖼 Logo</h3><input type="file" id="s-logo-file" accept="image/*" class="input mb-2" onchange="uploadLogo()">
-                <img id="s-logo-preview" src="" class="w-20 h-20 rounded-2xl object-cover mb-2" style="display:none">
                 <h3 class="font-bold mb-2">🌊 Watermark</h3><input type="file" id="s-watermark-file" accept="image/*" class="input mb-2" onchange="uploadWatermark()">
-                <img id="s-watermark-preview" src="" class="w-20 h-20 rounded-2xl object-cover mb-2" style="display:none">
                 <input id="s-name" class="input mb-2" placeholder="Doctor Name">
                 <input id="s-phone" class="input mb-2" placeholder="Phone">
                 <input id="s-specialty" class="input mb-2" placeholder="Specialty">
@@ -214,41 +217,44 @@
     </main>
 </div>
 <script>
-let D=[],P=[],RX=[],RD=[],SET={},EM=[],USERS=[],DISEASES={},SELECTED_DRUG=null,PT_DISEASES=[],PT_DRUGS=[],APPS=[],currentProfile=null,PATIENT_RX=[];
+let D=[],P=[],RX=[],RD=[],SET={},EM=[],USERS=[],DISEASES={},SELECTED_DRUG=null,PT_DISEASES=[],PT_DRUGS=[],APPS=[],currentProfile=null,PATIENT_RX=[],CASE_SHEETS={};
 let isAdmin={{ 'true' if current_user.is_admin else 'false' }};
-let CASE_SHEETS={};
-function renderCaseSheets(){let grid=document.getElementById("case-sheets-grid");grid.innerHTML=Object.keys(CASE_SHEETS).map(key=>`<div class="card text-center cursor-pointer hover:shadow-md" onclick="openCaseSheet('${key}')"><div class="text-3xl mb-2">📋</div><h4 class="font-bold">${CASE_SHEETS[key].name}</h4></div>`).join("")}
-function openCaseSheet(type){ if(type==="oral_surgery"){ window.location.href="/case-sheet/oral-surgery"; } else { alert("Coming soon!"); } }
-let CASE_SHEETS={};
-function renderCaseSheets(){let grid=document.getElementById("case-sheets-grid");grid.innerHTML=Object.keys(CASE_SHEETS).map(key=>`<div class="card text-center cursor-pointer hover:shadow-md" onclick="openCaseSheet('${key}')"><div class="text-3xl mb-2">📋</div><h4 class="font-bold">${CASE_SHEETS[key].name}</h4></div>`).join("")}
-function openCaseSheet(type){if(type==="oral_surgery"){window.location.href="/case-sheet/oral-surgery"}else{alert("Coming soon!")}}
-function toggleDarkMode(){document.getElementById("html-root").classList.toggle("dark");localStorage.setItem("darkMode",document.getElementById("html-root").classList.contains("dark"))}
-if(localStorage.getItem("darkMode")==="true")document.getElementById("html-root").classList.add("dark");
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
 function pickSection(id){ switchV(id); if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open'); }
 async function api(u,o={}){const r=await fetch(u,o);return r.json()}
+function toggleDarkMode(){ document.getElementById('html-root').classList.toggle('dark'); localStorage.setItem('darkMode', document.getElementById('html-root').classList.contains('dark')); }
+if(localStorage.getItem('darkMode')==='true') document.getElementById('html-root').classList.add('dark');
+
 async function load(){
     D=await api('/api/drugs'); P=await api('/api/patients'); SET=await api('/api/settings'); RD=await api('/api/prescriptions?ready=1'); EM=await api('/api/emergencies');
+    CASE_SHEETS = await api('/api/case-sheets');
     if(isAdmin) USERS=await api('/api/admin/users');
     APPS = await api('/api/appointments');
-CASE_SHEETS = await api("/api/case-sheets");
     document.getElementById('s-clinic').textContent=SET.clinic||'Clinic';
     document.getElementById('s-name').value=SET.name||''; document.getElementById('s-phone').value=SET.phone||'';
     document.getElementById('s-specialty').value=SET.specialty||''; document.getElementById('s-clinic').value=SET.clinic||'';
     document.getElementById('s-address').value=SET.address||'';
-    if(SET.logo){ document.getElementById('s-logo').src=SET.logo; document.getElementById('s-logo').style.display='block'; document.getElementById('s-logo-preview').src=SET.logo; document.getElementById('s-logo-preview').style.display='block'; }
-    if(SET.watermark){ document.getElementById('s-watermark-preview').src=SET.watermark; document.getElementById('s-watermark-preview').style.display='block'; }
     let cats=[...new Set(D.map(d=>d.category))];
     document.getElementById('rx-cat').innerHTML='<option value="">Choose category</option>'+cats.map(c=>`<option>${c}</option>`).join('');
     document.getElementById('lib-cat').innerHTML='<option>All</option>'+cats.map(c=>`<option>${c}</option>`).join('');
     if(isAdmin) document.getElementById('ad-cat').innerHTML=cats.map(c=>`<option>${c}</option>`).join('');
     document.getElementById('rx-patient').innerHTML='<option value="">Select patient</option>'+P.map(p=>`<option value="${p.id}">${p.name} (${p.age}y)</option>`).join('');
     document.getElementById('appt-patient').innerHTML='<option value="">Select Patient</option>'+P.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-    renderPatients(); renderReady(); renderEmergencies(); renderAppointments(); updateDashboard();
-CASE_SHEETS = await api("/api/case-sheets");renderCaseSheets();
-renderCaseSheets();
+    renderPatients(); renderReady(); renderEmergencies(); renderAppointments(); updateDashboard(); renderCaseSheets();
     if(isAdmin){ renderAdminDrugs(); renderUsersStats(); }
     updateDrugSuggestions(); lucide.createIcons();
+}
+function renderCaseSheets(){
+    let grid = document.getElementById('case-sheets-grid');
+    grid.innerHTML = Object.keys(CASE_SHEETS).map(key => `
+        <div class="card text-center cursor-pointer hover:shadow-md" onclick="openCaseSheet('${key}')">
+            <div class="text-3xl mb-2">📋</div>
+            <h4 class="font-bold">${CASE_SHEETS[key].name}</h4>
+        </div>`).join('');
+}
+function openCaseSheet(type){
+    if(type==="oral_surgery"){ window.location.href="/case-sheet/oral-surgery"; }
+    else { alert(CASE_SHEETS[type]?.name + " form coming soon!"); }
 }
 function updateDashboard(){
     document.getElementById('stat-patients').textContent = P.length;
@@ -271,7 +277,7 @@ async function savePatient(){let name=document.getElementById('p-name').value;if
 function previewRx(){let p={name:document.getElementById('rx-name').value||'Patient',age:document.getElementById('rx-age').value||'',gender:document.getElementById('rx-gender').value||'Male'};let diag=document.getElementById('rx-diagnosis').value||'';let pid=document.getElementById('rx-patient').value;document.getElementById('rx-paper').innerHTML=`<div style="display:flex;justify-content:space-between;border-bottom:2px solid #0d9488;padding-bottom:8px;margin-bottom:12px"><div><h3 style="font-size:18px;font-weight:800">${SET.clinic||'Dental Clinic'}</h3></div><div style="text-align:right"><p style="font-weight:700">${SET.name||'Dr.'}</p><p style="font-size:11px">${SET.phone||''}</p></div></div><p><b>Patient:</b> ${p.name} | <b>Age:</b> ${p.age} | <b>Gender:</b> ${p.gender}</p>${diag?`<p><b>Diagnosis:</b> ${diag}</p>`:''}<p><b>Date:</b> ${new Date().toLocaleDateString('en-GB')}</p><h3 style="color:#c00;margin-top:10px;font-weight:800">Rx:</h3>${RX.length?RX.map(d=>`<p style="margin:4px 0">- ${d.trade_name} ${d.dosage||d.adult_dose} ${d.frequency}</p>`).join(''):'<p>No medications</p>'}<div style="margin-top:30px;text-align:right;border-top:1px solid #ccc;padding-top:8px"><p><i>Signature: ______________</i></p></div>`;if(pid && RX.length > 0){fetch('/api/prescriptions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient_id:pid,diagnosis:diag,drugs:RX.map(d=>({drug_name:d.trade_name,dosage:d.dosage||d.adult_dose,frequency:d.frequency}))})})}pickSection('preview')}
 async function downloadPDF(){let p={name:document.getElementById('rx-name').value||'Patient',age:document.getElementById('rx-age').value||'',gender:document.getElementById('rx-gender').value||'Male',phone:document.getElementById('rx-phone').value||''};let pid=document.getElementById('rx-patient').value;let diag=document.getElementById('rx-diagnosis').value||'';let res=await fetch('/api/generate-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient:p,drugs:RX.map(d=>({drug_name:d.trade_name,dosage:d.dosage||d.adult_dose,frequency:d.frequency})),diagnosis:diag,patient_id:pid||null})});if(!res.ok){alert('Error generating PDF');return}let blob=await res.blob();let url=URL.createObjectURL(blob);window.open(url,'_blank')}
 async function sendWhatsApp(){let phone=document.getElementById('rx-phone').value.replace(/[^0-9]/g,'');if(!phone)return alert('Enter patient phone number');let name=document.getElementById('rx-name').value||'Patient';window.open('https://wa.me/'+phone+'?text='+encodeURIComponent('Dear '+name+', your prescription from Dr. '+SET.name+'.'),'_blank')}
-async function saveAsReady(){if(!RX.length)return alert('Add drugs first');let name=prompt('Name for ready prescription:');if(!name)return;await api('/api/prescriptions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugs:RX.map(d=>({drug_name:d.trade_name,dosage:d.dosage||d.adult_dose,frequency:d.frequency})),ready_name:name,is_global:isAdmin?confirm('Make global?'):false})});alert('Saved!');load()}
+async function saveAsReady(){if(!RX.length)return alert('Add drugs first');let name=prompt('Name for ready prescription:');if(!name)return;await api('/api/prescriptions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugs:RX.map(d=>({drug_name:d.trade_name,dosage:d.dosage||d.adult_dose,frequency:d.frequency})),ready_name:name,is_global:isAdmin?confirm('Make global? (visible to all users)'):false})});alert('Saved!');load()}
 async function runAI(){let s=document.getElementById('ai-symptoms').value;if(!s)return;document.getElementById('ai-result').classList.remove('hidden');document.getElementById('ai-result').innerHTML='<p class="text-gray-500">Analyzing...</p>';let res=await api('/api/ai/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symptoms:s,age:document.getElementById('ai-age').value,gender:document.getElementById('ai-gender').value})});document.getElementById('ai-result').innerHTML=`<pre style="white-space:pre-wrap;font-size:13px">${res.result}</pre>`}
 function showLib(){let cat=document.getElementById('lib-cat').value;let list=cat==='All'?D:D.filter(d=>d.category===cat);document.getElementById('lib-drugs').innerHTML=list.map(d=>`<div class="card text-xs"><b>${d.trade_name}</b><br>${d.adult_dose} ${d.frequency}</div>`).join('')}
 function renderReady(){document.getElementById('ready-grid').innerHTML=RD.map(r=>{let items=JSON.parse(r.items_json||'[]');return`<div class="card"><h4 class="font-bold">${r.ready_name||'Rx'}</h4>${items.map(i=>`<p class="text-xs">- ${i.drug_name}</p>`).join('')}<div class="flex gap-2 mt-2"><button class="btn text-xs" onclick="useReady('${r.id}')">Use</button><button class="btn text-xs" style="background:#f59e0b" onclick="editReady('${r.id}')">✏️ Edit</button><button class="btn text-xs btn-red" onclick="deleteReady('${r.id}')">🗑️</button>${isAdmin&&!r.is_global_template?`<button class="btn text-xs" style="background:#6366f1" onclick="promoteTemplate(${r.id})">Global</button>`:''}</div></div>`}).join('')}
@@ -312,12 +318,3 @@ load();
 </script>
 </body>
 </html>
-<style>
-.dark .nav-item i, .dark .nav-item svg { color: inherit !important; }
-.dark .nav-item { color: #ccf0e9 !important; }
-.dark .card, .dark .input, .dark .btn { color: var(--text) !important; }
-.dark .stat-card { color: #fff !important; }
-.dark .rx-paper { color: #1a2e2b !important; }
-.dark .tab-btn { color: #555 !important; }
-.dark .tab-btn.active { color: #fff !important; }
-</style>
