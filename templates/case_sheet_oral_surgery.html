@@ -320,7 +320,217 @@
     document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
-        const canvas1 = await html2canvas(document.getElementById('sheet1'), { scale:2, backgroundColor:'#ffffff', useCORS:true });
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 15;
+        let y = margin;
+
+        // ========== دالة مساعدة لرسم النص ==========
+        function addText(text, x, fontSize = 10, bold = false) {
+            pdf.setFont('Times', bold ? 'bold' : 'normal');
+            pdf.setFontSize(fontSize);
+            pdf.text(text, x, y);
+            y += fontSize * 0.8;
+        }
+
+        // ========== دالة مساعدة لرسم خط أفقي ==========
+        function addLine() {
+            pdf.setDrawColor(150);
+            pdf.setLineWidth(0.2);
+            pdf.line(margin, y, pageWidth - margin, y);
+            y += 2;
+        }
+
+        // ========== دالة مساعدة لرسم الجداول ==========
+        function addTable(headers, rows, widths) {
+            pdf.setFont('Times', 'bold');
+            pdf.setFontSize(9);
+            let startY = y;
+            let currentX = margin;
+            headers.forEach((header, i) => {
+                pdf.rect(currentX, y, widths[i], 6);
+                pdf.text(header, currentX + 1, y + 4);
+                currentX += widths[i];
+            });
+            y += 6;
+            pdf.setFont('Times', 'normal');
+            rows.forEach(row => {
+                currentX = margin;
+                row.forEach((cell, i) => {
+                    pdf.rect(currentX, y, widths[i], 6);
+                    pdf.text(cell, currentX + 1, y + 4);
+                    currentX += widths[i];
+                });
+                y += 6;
+            });
+        }
+
+        // ========== الصفحة الأولى ==========
+        // ترويسة
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(16);
+        pdf.text('TAIZ UNIVERSITY', margin, y); y += 6;
+        pdf.text('FACULTY OF DENTISTRY', margin, y); y += 8;
+        pdf.setFontSize(12);
+        pdf.text('CASE SHEET OF ORAL SURGERY', pageWidth/2, y, { align: 'center' }); y += 10;
+
+        // 1. بيانات المريض
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(11);
+        pdf.text('1. Patient Personal Data', margin, y); y += 6;
+        pdf.setFont('Times', 'normal');
+        pdf.setFontSize(10);
+        const patientName = document.getElementById('patientSelect').options[document.getElementById('patientSelect').selectedIndex]?.text || '_________________________';
+        pdf.text(`Name: ${patientName}`, margin, y);
+        pdf.text(`Gender: ${document.getElementById('gender').value || '_______'}`, margin + 90, y);
+        pdf.text(`Age: ${document.getElementById('age').value || '___'}`, margin + 130, y);
+        pdf.text(`Date: ${document.getElementById('date').value || '__________'}`, margin + 150, y);
+        y += 6;
+        pdf.text(`Address: ${document.getElementById('address').value || '_________________________'}`, margin, y); y += 5;
+        pdf.text(`Occupation: ${document.getElementById('occupation').value || '______________'}`, margin, y);
+        pdf.text(`Tel: ${document.getElementById('tel').value || '______________'}`, margin + 100, y);
+        y += 8;
+
+        // 2-5. التاريخ الطبي
+        ['chiefComplaint','presentIllness','pastDental','familyHistory'].forEach((id, i) => {
+            pdf.setFont('Times', 'bold');
+            pdf.setFontSize(10);
+            pdf.text(`${i+2}. ${['Chief Complaint','History of Present Illness','Past Dental History','Family History'][i]}`, margin, y); y += 5;
+            pdf.setFont('Times', 'normal');
+            pdf.setFontSize(9);
+            const val = document.getElementById(id).value || '________________________________________';
+            const lines = pdf.splitTextToSize(val, pageWidth - margin*2);
+            lines.forEach(line => { pdf.text(line, margin + 2, y); y += 5; });
+            y += 3;
+        });
+
+        // 6. Medical History
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('6. Medical History', margin, y); y += 6;
+        pdf.setFont('Times', 'normal');
+        pdf.setFontSize(9);
+        document.querySelectorAll('.medical-row').forEach(row => {
+            const state = row.querySelector('.medical-state').classList.contains('checked') ? '✓' : (row.querySelector('.medical-state').classList.contains('crossed') ? '✕' : '○');
+            const label = row.querySelector('span.label')?.textContent || '';
+            const note = row.querySelector('.medical-note')?.value || '';
+            pdf.text(`${state}  ${label}`, margin, y);
+            if (note) pdf.text(note, margin + 60, y);
+            y += 5;
+        });
+        y += 3;
+
+        // 7. Habits
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('7. Habits', margin, y); y += 5;
+        pdf.setFont('Times', 'normal');
+        pdf.setFontSize(9);
+        const habitsVal = document.getElementById('habits').value || '';
+        pdf.text(habitsVal || '________________________________________', margin + 2, y); y += 6;
+
+        // 8. Extra-Oral Exam
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('8. Clinical Examination (Extra-Oral)', margin, y); y += 6;
+        pdf.setFont('Times', 'normal');
+        pdf.setFontSize(9);
+        document.querySelectorAll('.exam-row').forEach(row => {
+            const stateEl = row.querySelector('.exam-state');
+            const state = stateEl.classList.contains('normal') ? '✓' : (stateEl.classList.contains('middle') ? '⚠' : (stateEl.classList.contains('abnormal') ? '✕' : '○'));
+            const label = row.querySelector('span')?.textContent || '';
+            const note = row.querySelector('.exam-note')?.value || '';
+            pdf.text(`${state}  ${label}`, margin, y);
+            if (note) pdf.text(note, margin + 60, y);
+            y += 5;
+        });
+
+        // الصفحة الثانية
+        pdf.addPage();
+        y = margin;
+
+        // 9. Intra-Oral + Tooth Chart
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('9. Clinical Examination (Intra-Oral)', margin, y); y += 7;
+
+        // رسم جدول الأسنان
+        pdf.setFontSize(9);
+        const cellWidth = 10;
+        const toothStartX = margin + 20;
+        pdf.text('Upper', toothStartX - 15, y + 4);
+        for (let i = 0; i < 16; i++) {
+            pdf.rect(toothStartX + i * cellWidth, y, cellWidth, 6);
+            const tooth = document.querySelectorAll('#toothGrid .tooth-row')[0].querySelectorAll('.tooth-cell')[i];
+            pdf.text(tooth?.textContent || '', toothStartX + i * cellWidth + 3, y + 4);
+        }
+        y += 6;
+        for (let i = 0; i < 16; i++) {
+            pdf.rect(toothStartX + i * cellWidth, y, cellWidth, 6);
+            pdf.text(['8','7','6','5','4','3','2','1','1','2','3','4','5','6','7','8'][i], toothStartX + i * cellWidth + 4, y + 4);
+        }
+        y += 6;
+        pdf.text('Lower', toothStartX - 15, y + 4);
+        for (let i = 0; i < 16; i++) {
+            pdf.rect(toothStartX + i * cellWidth, y, cellWidth, 6);
+            const tooth = document.querySelectorAll('#toothGrid .tooth-row')[2].querySelectorAll('.tooth-cell')[i];
+            pdf.text(tooth?.textContent || '', toothStartX + i * cellWidth + 3, y + 4);
+        }
+        y += 10;
+
+        // Oral conditions
+        ['gingivaNote','perioNote','occlusionNote','mucosaNote'].forEach((id, i) => {
+            pdf.text(`${['Gingiva','Periodontal','Occlusion','Mucosa'][i]}: ${document.getElementById(id)?.value || ''}`, margin, y); y += 5;
+        });
+        y += 3;
+
+        // 10. Investigations
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('10. Pre-operative Investigations', margin, y); y += 6;
+        pdf.setFont('Times', 'normal');
+        pdf.setFontSize(9);
+        const invVal = document.getElementById('investigationsInput')?.value || '';
+        pdf.text(invVal || '________________________________________', margin + 2, y); y += 6;
+
+        // 11. Diagnosis
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('11. Final Clinical Diagnosis', margin, y); y += 6;
+        pdf.setFont('Times', 'normal');
+        pdf.setFontSize(9);
+        const diagVal = document.getElementById('diagnosisInput')?.value || '';
+        pdf.text(diagVal || '________________________________________', margin + 2, y); y += 6;
+
+        // 12. Treatment Plan
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('12. Surgical Treatment Plan & Assessment', margin, y); y += 7;
+        pdf.setFont('Times', 'normal');
+        pdf.setFontSize(9);
+        ['plan1','plan2','plan3','plan4'].forEach((id, i) => {
+            pdf.text(`${i+1}. ${document.getElementById(id)?.value || ''}`, margin + 5, y); y += 5;
+        });
+        y += 3;
+        pdf.text(`Supervisor: ${document.getElementById('supervisor')?.value || ''}`, margin, y); y += 5;
+        pdf.text(`Student: ${document.getElementById('studentName')?.value || ''}`, margin, y); y += 5;
+        pdf.text(`Signature: ${document.getElementById('officialSignature')?.value || ''}`, margin, y); y += 8;
+
+        // جدول التقييم
+        pdf.setFont('Times', 'bold');
+        pdf.setFontSize(10);
+        pdf.text('Assessment Scores', margin, y); y += 6;
+        const scores = [
+            ['Sterilization', '2', document.getElementById('sterilizationScore')?.value || ''],
+            ['Case Sheet', '1.5', document.getElementById('caseSheetScore')?.value || ''],
+            ['Instruments', '1.5', document.getElementById('instrumentScore')?.value || ''],
+            ['Technique', '5', document.getElementById('techniqueScore')?.value || ''],
+            ['Total', '10', document.getElementById('totalScore')?.value || '']
+        ];
+        addTable(['Criteria', 'Max', 'Score'], scores, [80, 40, 40]);
+
+        pdf.save('Oral_Surgery_Case_Sheet.pdf');
+    });
         const canvas2 = await html2canvas(document.getElementById('sheet2'), { scale:2, backgroundColor:'#ffffff', useCORS:true });
         const img1 = canvas1.toDataURL('image/png'), img2 = canvas2.toDataURL('image/png');
         const width = 190, height1 = canvas1.height * width / canvas1.width, height2 = canvas2.height * width / canvas2.width;
