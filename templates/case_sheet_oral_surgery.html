@@ -1,368 +1,1247 @@
 <!doctype html>
 <html lang="en">
-<head>
+ <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Case Sheet of Oral Surgery - Smart Dental</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700&amp;family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root{--ink:#1f2933;--muted:#5b6570;--line:#8d969b;--paper:#fff;--accent:#0f5e6b;--accent-dark:#0a4650}
-    *{box-sizing:border-box}body{margin:0;font-family:'Source Serif 4',serif;color:var(--ink);background:#e8e6e0}
-    .app-shell{width:100%;min-height:100vh;padding:22px;background:linear-gradient(180deg,#eeece6 0%,#e1dfd8 100%)}
-    .toolbar{width:min(1120px,100%);margin:0 auto 18px;background:rgba(255,255,255,.88);border:1px solid rgba(31,41,51,.08);box-shadow:0 8px 30px rgba(31,41,51,.08);border-radius:18px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:16px;backdrop-filter:blur(8px)}
-    .toolbar-title{display:flex;align-items:center;gap:12px}
-    .toolbar-mark{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,var(--accent),#1a7b89);display:grid;place-items:center;color:#fff}
+    :root{
+      --ink:#1f2933;
+      --muted:#5b6570;
+      --line:#8d969b;
+      --paper:#fff;
+      --accent:#0f5e6b;
+      --accent-dark:#0a4650;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Source Serif 4', serif;
+      color:var(--ink);
+      background:#e8e6e0;
+    }
+    .app-shell{
+      width:100%;
+      min-height:100vh;
+      padding:22px;
+      background:linear-gradient(180deg,#eeece6 0%,#e1dfd8 100%);
+    }
+    .toolbar{
+      width:min(1120px,100%);
+      margin:0 auto 18px;
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(31,41,51,.08);
+      box-shadow:0 8px 30px rgba(31,41,51,.08);
+      border-radius:18px;
+      padding:14px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      backdrop-filter:blur(8px);
+    }
+    .toolbar-title{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .toolbar-mark{
+      width:38px;height:38px;border-radius:50%;
+      background:linear-gradient(145deg,var(--accent),#1a7b89);
+      display:grid;place-items:center;color:#fff;
+    }
     .toolbar-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .action-btn{border:none;border-radius:999px;padding:10px 16px;font-family:'Work Sans',sans-serif;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:.2s ease}
-    .primary-btn{background:var(--accent);color:#fff}.primary-btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
-    .secondary-btn{background:#edf0f1;color:#314047}.secondary-btn:hover{background:#e1e6e8;transform:translateY(-1px)}
-    .pages{width:min(1120px,100%);margin:0 auto;display:flex;flex-direction:column;gap:28px;align-items:center}
-    .sheet{width:794px;min-height:1123px;background:#fff;box-shadow:0 18px 42px rgba(25,31,35,.18);padding:40px 48px 36px;position:relative;overflow:hidden}
-    .page-header{display:grid;grid-template-columns:1fr 108px 1fr;gap:14px;align-items:start;margin-bottom:10px}
-    .small-head{font-size:14px;font-weight:600;line-height:1.5}
-    .logo-wrap{display:flex;justify-content:center;align-items:center;height:84px}
-    .logo-frame{width:82px;height:82px;border-radius:16px;overflow:hidden;border:1px solid #c9d1d6;display:flex;align-items:center;justify-content:center;background:#f9faf9}
-    .logo-frame img{width:100%;height:100%;object-fit:contain}
-    .status-box{border:1px solid #7c858c;padding:6px 7px;font-size:12px;line-height:1.7;min-height:74px}
-    .doc-title{text-align:center;margin:4px 0 10px;font-weight:700;font-size:18px;text-decoration:underline;text-underline-offset:2px}
+    .action-btn{
+      border:none;border-radius:999px;padding:10px 16px;
+      font-family:'Work Sans',sans-serif;font-size:15px;font-weight:600;
+      display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+      transition:.2s ease;
+    }
+    .action-btn svg{width:16px;height:16px}
+    .primary-btn{background:var(--accent);color:#fff}
+    .primary-btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+    .secondary-btn{background:#edf0f1;color:#314047}
+    .secondary-btn:hover{background:#e1e6e8;transform:translateY(-1px)}
+    .pages{
+      width:min(1120px,100%);
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:28px;
+      align-items:center;
+    }
+    .sheet{
+      width:794px;
+      min-height:1123px;
+      background:#fff;
+      box-shadow:0 18px 42px rgba(25,31,35,.18);
+      padding:40px 48px 36px;
+      position:relative;
+      overflow:hidden;
+    }
+    .sheet:before{
+      content:"";
+      position:absolute; inset:0;
+      border:1px solid rgba(31,41,51,.08);
+      pointer-events:none;
+    }
+    .page-header{
+      display:grid;
+      grid-template-columns:1fr 108px 1fr;
+      gap:14px;
+      align-items:start;
+      margin-bottom:10px;
+    }
+    .small-head{
+      font-size:14px;
+      font-weight:600;
+      line-height:1.5;
+    }
+    .logo-wrap{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:84px;
+    }
+    .logo-frame{
+      width:82px;height:82px;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid #c9d1d6;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#f9faf9;
+    }
+    .logo-frame img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+    .status-box{
+      border:1px solid #7c858c;
+      padding:6px 7px;
+      font-size:12px;
+      line-height:1.7;
+      min-height:74px;
+    }
+    .doc-title{
+      text-align:center;
+      margin:4px 0 10px;
+      font-weight:700;
+      font-size:18px;
+      text-decoration:underline;
+      text-underline-offset:2px;
+    }
     .section{margin-top:8px;font-size:13px}
-    .section-title{font-weight:700;margin-bottom:3px;line-height:1.3}
-    .section-title .subnote{font-weight:600;margin-left:8px;font-size:12px}
-    .line-row{display:flex;align-items:flex-end;gap:10px;min-height:20px;margin:1px 0;width:100%}
-    .field{display:flex;align-items:flex-end;gap:3px;min-width:0}
-    .field label{font-weight:600;font-size:12px;white-space:nowrap;flex:none}
-    .field input,.field select{border:none;border-bottom:1px dotted #858d92;outline:none;height:20px;font:13px 'Source Serif 4',serif;padding:0 2px 1px;background:transparent;width:100%;min-width:0}
-    .name-field{flex:2.2}.gender-field{flex:.85}.age-field{flex:.55}.date-field{flex:.9}.address-field{flex:1.7}.occupation-field{flex:1}.tel-field{flex:.8}
-    .textarea-lines{width:100%;display:block;border:none;outline:none;resize:none;font:13px 'Source Serif 4',serif;line-height:1.5;min-height:46px;padding:0 2px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 20px,#aab0b4 21px,transparent 22px)}
-    .checkbox-line{display:flex;align-items:center;gap:6px;min-height:19px;margin:2px 0;width:100%}
-    .medical-state{width:14px;height:14px;border:1px solid #5c666d;display:flex;align-items:center;justify-content:center;font-family:'Work Sans',sans-serif;font-size:12px;line-height:1;cursor:pointer;flex:none;user-select:none;background:#fff}
-    .medical-state.checked{color:#107653;font-weight:700}.medical-state.crossed{color:#b63b35;font-weight:700}
-    .checkbox-line span.label{font-size:12px;flex:none;white-space:nowrap}
-    .checkbox-fill{flex:1;min-width:0;border-bottom:1px dotted #90979b;height:16px;position:relative}
-    .medical-note{position:absolute;left:2px;right:0;bottom:0;height:16px;border:none;outline:none;font:12px 'Source Serif 4',serif;line-height:1.5;background:transparent;width:100%;min-width:0}
-    .oral-condition-note{border:none;border-bottom:1px dotted #90979b;outline:none;width:100%;font:12px 'Source Serif 4',serif;line-height:1.5;background:transparent;padding:0 2px 1px;height:16px}
-    .exam-state{width:14px;height:14px;border:1px solid #5c666d;display:flex;align-items:center;justify-content:center;font-family:'Work Sans',sans-serif;font-size:12px;line-height:1;cursor:pointer;flex:none;user-select:none;background:#fff;transition:all .15s ease}
-    .exam-state.normal{background:#e3f2fd;border-color:#1c67a5;color:#1c67a5;font-weight:700}
-    .exam-state.middle{background:#f3e5f5;border-color:#6b46c1;color:#6b46c1;font-weight:700}
-    .exam-state.abnormal{background:#ffebee;border-color:#c7352e;color:#c7352e;font-weight:700}
-    .exam-note{position:absolute;left:2px;right:0;bottom:0;height:16px;border:none;outline:none;font:12px 'Source Serif 4',serif;line-height:1.5;background:transparent;width:100%;min-width:0}
-    .investigations-dropdown,.diagnosis-dropdown{background:#fff;border:1px solid #8b9498;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.1);z-index:10;width:100%;max-height:180px;overflow-y:auto}
-    .investigation-option,.diagnosis-option{padding:8px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid #e0e0e0;font-family:'Source Serif 4',serif;color:#1f2933;transition:background .1s ease}
-    .investigation-option:last-child,.diagnosis-option:last-child{border-bottom:none}
-    .investigation-option:hover,.diagnosis-option:hover{background:#f0f4f8}
-    .tooth-chart-wrap{margin-top:5px;display:flex;align-items:flex-start;gap:8px}
-    .tooth-legend{width:110px;font-size:11px;line-height:1.65}
-    .tooth-grid{flex:1;border:1px solid #8f989e;max-width:250px}
-    .tooth-row{display:grid;grid-template-columns:repeat(16,1fr);min-height:18px}
-    .tooth-row+.tooth-row{border-top:1px solid #8f989e}
-    .tooth-cell{border-right:1px solid #8f989e;display:flex;align-items:center;justify-content:center;font-size:10px;min-width:0;position:relative}
+    .section-title{
+      font-weight:700;
+      margin-bottom:3px;
+      line-height:1.3;
+    }
+    .section-title .subnote{
+      font-weight:600;
+      margin-left:8px;
+      font-size:12px;
+    }
+    .line-row{
+      display:flex;
+      align-items:flex-end;
+      gap:10px;
+      min-height:20px;
+      margin:1px 0;
+      width:100%;
+    }
+    .field{
+      display:flex;
+      align-items:flex-end;
+      gap:3px;
+      min-width:0;
+    }
+    .field label{
+      font-weight:600;
+      font-size:12px;
+      white-space:nowrap;
+      flex:none;
+    }
+    .field input, .field select{
+      border:none;
+      border-bottom:1px dotted #858d92;
+      outline:none;
+      height:20px;
+      font:13px 'Source Serif 4',serif;
+      padding:0 2px 1px;
+      background:transparent;
+      width:100%;
+      min-width:0;
+    }
+    .name-field{flex:2.2}
+    .gender-field{flex:.85}
+    .age-field{flex:.55}
+    .date-field{flex:.9}
+    .address-field{flex:1.7}
+    .occupation-field{flex:1}
+    .tel-field{flex:.8}
+    .textarea-lines{
+      width:100%;
+      display:block;
+      border:none;
+      outline:none;
+      resize:none;
+      font:13px 'Source Serif 4',serif;
+      line-height:1.5;
+      min-height:46px;
+      padding:0 2px;
+      background:repeating-linear-gradient(to bottom, transparent 0, transparent 20px, #aab0b4 21px, transparent 22px);
+    }
+    .checkbox-line{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      min-height:19px;
+      margin:2px 0;
+      width:100%;
+    }
+    .medical-state{
+      width:14px;height:14px;
+      border:1px solid #5c666d;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:'Work Sans',sans-serif;
+      font-size:12px;
+      line-height:1;
+      cursor:pointer;
+      flex:none;
+      user-select:none;
+      background:#fff;
+    }
+    .medical-state.checked{
+      color:#107653;
+      font-weight:700;
+    }
+    .medical-state.crossed{
+      color:#b63b35;
+      font-weight:700;
+    }
+    .checkbox-line span.label{
+      font-size:12px;
+      flex:none;
+      white-space:nowrap;
+    }
+    .checkbox-fill{
+      flex:1;
+      min-width:0;
+      border-bottom:1px dotted #90979b;
+      height:16px;
+      position:relative;
+    }
+    .medical-note{
+      position:absolute;
+      left:2px;
+      right:0;
+      bottom:0;
+      height:16px;
+      border:none;
+      outline:none;
+      font:12px 'Source Serif 4',serif;
+      line-height:1.5;
+      background:transparent;
+      width:100%;
+      min-width:0;
+    }
+    .oral-condition-note{
+      border:none;
+      border-bottom:1px dotted #90979b;
+      outline:none;
+      width:100%;
+      font:12px 'Source Serif 4',serif;
+      line-height:1.5;
+      background:transparent;
+      padding:0 2px 1px;
+      height:16px;
+    }
+    .oral-condition-note:focus{
+      background:rgba(15,94,107,.035);
+      box-shadow:0 1px 0 rgba(15,94,107,.35);
+    }
+    .exam-state{
+      width:14px;height:14px;
+      border:1px solid #5c666d;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:'Work Sans',sans-serif;
+      font-size:12px;
+      line-height:1;
+      cursor:pointer;
+      flex:none;
+      user-select:none;
+      background:#fff;
+      transition:all .15s ease;
+    }
+    .exam-state.normal{
+      background:#e3f2fd;
+      border-color:#1c67a5;
+      color:#1c67a5;
+      font-weight:700;
+    }
+    .exam-state.middle{
+      background:#f3e5f5;
+      border-color:#6b46c1;
+      color:#6b46c1;
+      font-weight:700;
+    }
+    .exam-state.abnormal{
+      background:#ffebee;
+      border-color:#c7352e;
+      color:#c7352e;
+      font-weight:700;
+    }
+    .exam-note{
+      position:absolute;
+      left:2px;
+      right:0;
+      bottom:0;
+      height:16px;
+      border:none;
+      outline:none;
+      font:12px 'Source Serif 4',serif;
+      line-height:1.5;
+      background:transparent;
+      width:100%;
+      min-width:0;
+    }
+    .investigations-dropdown, .diagnosis-dropdown {
+      background: #fff;
+      border: 1px solid #8b9498;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      z-index: 10;
+      width: 100%;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .investigation-option, .diagnosis-option {
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #e0e0e0;
+      font-family: 'Source Serif 4', serif;
+      color: #1f2933;
+      transition: background .1s ease;
+    }
+    .investigation-option:last-child, .diagnosis-option:last-child {
+      border-bottom: none;
+    }
+    .investigation-option:hover, .diagnosis-option:hover {
+      background: #f0f4f8;
+    }
+    .tooth-chart-wrap{
+      margin-top:5px;
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+    }
+    .tooth-legend{
+      width:110px;
+      font-size:11px;
+      line-height:1.65;
+    }
+    .tooth-grid{
+      flex:1;
+      border:1px solid #8f989e;
+      max-width:250px;
+    }
+    .tooth-row{
+      display:grid;
+      grid-template-columns:repeat(16,1fr);
+      min-height:18px;
+    }
+    .tooth-row + .tooth-row{border-top:1px solid #8f989e}
+    .tooth-cell{
+      border-right:1px solid #8f989e;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:10px;
+      min-width:0;
+      position:relative;
+    }
     .tooth-cell:last-child{border-right:none}
-    .mark-cell{cursor:pointer;font-family:'Work Sans',sans-serif;font-size:14px;font-weight:700}
+    .mark-cell{
+      cursor:pointer;
+      font-family:'Work Sans',sans-serif;
+      font-size:14px;
+      font-weight:700;
+    }
     .mark-cell:hover{background:#f2f7f8}
-    .palette{position:fixed;z-index:50;background:#fff;border:1px solid #cbd5da;box-shadow:0 10px 24px rgba(0,0,0,.14);border-radius:10px;padding:7px;display:none;gap:4px}
-    .palette button{border:1px solid #d2d9dc;background:#fff;border-radius:6px;width:28px;height:26px;cursor:pointer;font-family:'Work Sans',sans-serif;font-weight:700;font-size:15px}
+    .palette{
+      position:fixed;
+      z-index:50;
+      background:#fff;
+      border:1px solid #cbd5da;
+      box-shadow:0 10px 24px rgba(0,0,0,.14);
+      border-radius:10px;
+      padding:7px;
+      display:none;
+      gap:4px;
+    }
+    .palette button{
+      border:1px solid #d2d9dc;
+      background:#fff;
+      border-radius:6px;
+      width:28px;height:26px;
+      cursor:pointer;
+      font-family:'Work Sans',sans-serif;
+      font-weight:700;
+      font-size:15px;
+    }
     .palette button:hover{background:#f4f7f8}
-    .red{color:#c7352e}.blue{color:#1c67a5}
-    .treatment-grid{display:grid;grid-template-columns:1.05fr 1.25fr;gap:14px;margin-top:8px;align-items:start}
+    .red{color:#c7352e}
+    .blue{color:#1c67a5}
+    .treatment-grid{
+      display:grid;
+      grid-template-columns:1.05fr 1.25fr;
+      gap:14px;
+      margin-top:8px;
+      align-items:start;
+    }
     .plan-list{display:flex;flex-direction:column;gap:4px}
-    .plan-row{display:grid;grid-template-columns:16px 1fr;align-items:end;gap:4px;font-size:12px}
-    .plan-row input,.signature-line input{border:none;border-bottom:1px dotted #8b9498;outline:none;width:100%;font:12px 'Source Serif 4',serif;line-height:1.5;background:transparent}
+    .plan-row{
+      display:grid;
+      grid-template-columns:16px 1fr;
+      align-items:end;
+      gap:4px;
+      font-size:12px;
+    }
+    .plan-row input,
+    .signature-line input{
+      border:none;
+      border-bottom:1px dotted #8b9498;
+      outline:none;
+      width:100%;
+      font:12px 'Source Serif 4',serif;
+      line-height:1.5;
+      background:transparent;
+    }
     .signature-block{margin-top:10px;font-size:11px;line-height:1.8}
     .signature-line{display:flex;gap:5px;align-items:flex-end;margin-bottom:2px}
     .signature-line span{white-space:nowrap}
-    .score-table{border-collapse:collapse;width:100%;font-size:11px}
-    .score-table td,.score-table th{border:1px solid #90989d;padding:3px 5px;line-height:1.15}
-    .score-table th{font-weight:700;text-align:center;background:#fafafa}
+    .score-table{
+      border-collapse:collapse;
+      width:100%;
+      font-size:11px;
+    }
+    .score-table td,.score-table th{
+      border:1px solid #90989d;
+      padding:3px 5px;
+      line-height:1.15;
+    }
+    .score-table th{
+      font-weight:700;
+      text-align:center;
+      background:#fafafa;
+    }
     .score-table td:last-child{text-align:center;width:55px;font-weight:600}
-    .small-note-box{width:126px;border:1px solid #90989d;padding:5px 6px;font-size:10.5px;line-height:1.65;margin-top:10px}
-    @media(max-width:900px){.app-shell{padding:14px}.pages{overflow-x:auto;align-items:flex-start;padding-bottom:8px}.toolbar{align-items:flex-start;flex-direction:column}}
-    @media print{body{background:#fff}.app-shell{padding:0;background:#fff}.toolbar{display:none}.pages{width:100%;gap:0;display:block}.sheet{width:210mm;min-height:297mm;box-shadow:none;page-break-after:always;margin:0;padding:11mm 12.5mm 10mm}.sheet:last-child{page-break-after:auto}.sheet:before{display:none}.palette{display:none!important}}
+    .small-note-box{
+      width:126px;
+      border:1px solid #90989d;
+      padding:5px 6px;
+      font-size:10.5px;
+      line-height:1.65;
+      margin-top:10px;
+    }
+    input:focus,textarea:focus{
+      background:rgba(15,94,107,.035);
+      box-shadow:0 1px 0 rgba(15,94,107,.35);
+    }
+    .spacer-4{height:4px}
+    @media (max-width:900px){
+      .app-shell{padding:14px}
+      .pages{overflow-x:auto;align-items:flex-start;padding-bottom:8px}
+      .toolbar{align-items:flex-start;flex-direction:column}
+    }
+    @media print{
+      body{background:#fff}
+      .app-shell{padding:0;background:#fff}
+      .toolbar{display:none}
+      .pages{width:100%;gap:0;display:block}
+      .sheet{
+        width:210mm;
+        min-height:297mm;
+        box-shadow:none;
+        page-break-after:always;
+        margin:0;
+        padding:11mm 12.5mm 10mm;
+      }
+      .sheet:last-child{page-break-after:auto}
+      .sheet:before{display:none}
+      .palette{display:none!important}
+    }
   </style>
-</head>
-<body>
-<div class="app-shell">
- <header class="toolbar">
-  <div class="toolbar-title">
-   <div class="toolbar-mark"><i data-lucide="stethoscope"></i></div>
-   <div><h1 style="font-family:'Work Sans',sans-serif;font-size:19px;font-weight:700;margin:0;">Oral Surgery Management System</h1><p style="font-family:'Work Sans',sans-serif;font-size:14px;margin:2px 0 0;color:#66727a;">Clinical Record Dashboard</p></div>
-  </div>
-  <div class="toolbar-actions">
-   <label for="logoInput" class="action-btn secondary-btn" style="cursor:pointer;"><i data-lucide="image-up"></i><span>Upload Logo</span></label>
-   <input id="logoInput" type="file" accept="image/*" style="display:none">
-   <button id="saveDbBtn" class="action-btn secondary-btn"><i data-lucide="database"></i><span>Save to DB</span></button>
-   <button id="downloadPdfBtn" class="action-btn primary-btn"><i data-lucide="file-down"></i><span>PDF</span></button>
-   <button id="clearBtn" class="action-btn secondary-btn"><i data-lucide="rotate-ccw"></i><span>Clear</span></button>
-   <button id="printBtn" class="action-btn primary-btn"><i data-lucide="printer"></i><span>Print</span></button>
-  </div>
- </header>
- <main class="pages">
-  <!-- ========== SHEET 1 ========== -->
-  <section class="sheet" id="sheet1">
-   <div class="page-header">
-    <div class="small-head"><div>TAIZ UNIVERSITY</div><div>FACULTY OF DENTISTRY</div></div>
-    <div class="logo-wrap"><div class="logo-frame"><img id="logoImage" src="https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?q=80&w=200&auto=format&fit=crop"></div></div>
-    <div class="status-box">
-     <div><span>Start Time:</span> <input style="border:none;border-bottom:1px dotted #888;width:54px;background:transparent;outline:none;font-size:11px;"></div>
-     <div><span>Cleanliness:</span> <input style="border:none;border-bottom:1px dotted #888;width:44px;background:transparent;outline:none;font-size:11px;"></div>
-     <div><span>Spittoon</span> ( &nbsp; )</div><div><span>Floor</span> ( &nbsp; )</div><div><span>Infection Control</span> ( &nbsp; )</div>
-    </div>
-   </div>
-   <div class="doc-title">CASE SHEET OF ORAL SURGERY</div>
-   <!-- 1. Patient Data -->
-   <div class="section"><div class="section-title">1. Patient Personal Data</div>
-    <div class="line-row">
-     <div class="field name-field"><label for="patientSelect">Name:</label><select id="patientSelect" style="border:none;border-bottom:1px dotted #858d92;outline:none;height:20px;font:13px 'Source Serif 4',serif;padding:0 2px 1px;background:transparent;width:100%;min-width:0;"><option value="">Select Patient...</option></select></div>
-     <div class="field gender-field"><label for="gender">Gender:</label><input id="gender"></div>
-     <div class="field age-field"><label for="age">Age:</label><input id="age"></div>
-     <div class="field date-field"><label for="date">Date:</label><input id="date"></div>
-    </div>
-    <div class="line-row">
-     <div class="field address-field"><label for="address">Address:</label><input id="address"></div>
-     <div class="field occupation-field"><label for="occupation">Occupation:</label><input id="occupation"></div>
-     <div class="field tel-field"><label for="tel">Tel:</label><input id="tel"></div>
-    </div>
-   </div>
-   <!-- 2. Chief Complaint -->
-   <div class="section"><div class="section-title">2. Chief Complaint</div><textarea class="textarea-lines" rows="2" id="chiefComplaint"></textarea></div>
-   <!-- 3. History of Present Illness -->
-   <div class="section"><div class="section-title">3. History of Present Illness</div><textarea class="textarea-lines" rows="2" id="presentIllness"></textarea></div>
-   <!-- 4. Past Dental History -->
-   <div class="section"><div class="section-title">4. Past Dental History</div><textarea class="textarea-lines" rows="1" id="pastDental"></textarea></div>
-   <!-- 5. Family History -->
-   <div class="section"><div class="section-title">5. Family History</div><textarea class="textarea-lines" rows="1" id="familyHistory"></textarea></div>
-   <!-- 6. Medical History -->
-   <div class="section"><div class="section-title"><span>6. Medical History</span> <span class="subnote">(✓=Yes, ✕=No)</span></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Cardiovascular</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Endocrine / Diabetes</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Respiratory / Asthma</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Blood Disorders</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Liver / Hepatitis</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Renal / Kidney</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Allergies (Penicillin, LA)</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-    <div class="checkbox-line medical-row"><div class="medical-state"></div><span class="label">Other Systemic</span><div class="checkbox-fill"><input class="medical-note"></div></div>
-   </div>
-   <!-- 7. Habits -->
-   <div class="section"><div class="section-title">7. Habits</div><textarea class="textarea-lines" rows="1" id="habits"></textarea></div>
-   <!-- 8. Extra-Oral Exam -->
-   <div class="section"><div class="section-title">8. Clinical Examination (Extra-Oral)</div>
-    <div class="checkbox-line exam-row"><div class="exam-state"></div><span class="label">Skin Tone</span><div class="checkbox-fill"><input class="exam-note"></div></div>
-    <div class="checkbox-line exam-row"><div class="exam-state"></div><span class="label">Facial Symmetry & Neck</span><div class="checkbox-fill"><input class="exam-note"></div></div>
-    <div class="checkbox-line exam-row"><div class="exam-state"></div><span class="label">TMJ</span><div class="checkbox-fill"><input class="exam-note"></div></div>
-    <div class="checkbox-line exam-row"><div class="exam-state"></div><span class="label">Salivary Glands</span><div class="checkbox-fill"><input class="exam-note"></div></div>
-    <div class="checkbox-line exam-row"><div class="exam-state"></div><span class="label">Mouth Opening</span><div class="checkbox-fill"><input class="exam-note"></div></div>
-   </div>
-  </section>
-  <!-- ========== SHEET 2 ========== -->
-  <section class="sheet" id="sheet2">
-   <div class="section" style="margin-top:0">
-    <div class="checkbox-line exam-row"><div class="exam-state"></div><span class="label">Lip Competency</span><div class="checkbox-fill"><input class="exam-note"></div></div>
-   </div>
-   <!-- 9. Intra-Oral Exam + Tooth Chart -->
-   <div class="section"><div class="section-title"><span>9. Clinical Examination (Intra-Oral)</span></div>
-    <div class="tooth-chart-wrap">
-     <div class="tooth-legend"><div>○ O = Caries</div><div>○ F = Filling</div><div>○ X = Lost</div><div>○ U = Unrestorable</div><div>○ NE = Not Erupted</div></div>
-     <div class="tooth-grid" id="toothGrid"></div>
-    </div>
-    <div class="checkbox-line"><span>○</span><span class="label">Gingiva</span><div class="checkbox-fill"><input class="oral-condition-note" id="gingivaNote"></div></div>
-    <div class="checkbox-line"><span>○</span><span class="label">Periodontal</span><div class="checkbox-fill"><input class="oral-condition-note" id="perioNote"></div></div>
-    <div class="checkbox-line"><span>○</span><span class="label">Occlusion</span><div class="checkbox-fill"><input class="oral-condition-note" id="occlusionNote"></div></div>
-    <div class="checkbox-line"><span>○</span><span class="label">Mucosa</span><div class="checkbox-fill"><input class="oral-condition-note" id="mucosaNote"></div></div>
-   </div>
-   <!-- 10. Investigations -->
-   <div class="section"><div class="section-title"><span>10. Investigations</span></div>
-    <div style="position:relative;"><textarea class="textarea-lines" rows="2" id="investigationsInput"></textarea><div id="investigationsDropdown" class="investigations-dropdown" style="display:none;position:absolute;top:100%;left:0;"></div></div>
-   </div>
-   <!-- 11. Diagnosis -->
-   <div class="section"><div class="section-title"><span>11. Diagnosis</span></div>
-    <div style="position:relative;"><textarea class="textarea-lines" rows="2" id="diagnosisInput"></textarea><div id="diagnosisDropdown" class="diagnosis-dropdown" style="display:none;position:absolute;top:100%;left:0;"></div></div>
-   </div>
-   <!-- 12. Treatment Plan -->
-   <div class="section"><div class="section-title"><span>12. Treatment Plan & Assessment</span></div>
-    <div class="treatment-grid">
+ </head>
+ <body>
+  <div class="app-shell">
+   <header class="toolbar">
+    <div class="toolbar-title">
+     <div class="toolbar-mark">
+      <i data-lucide="stethoscope"></i>
+     </div>
      <div>
-      <div class="plan-list" id="planList"></div>
-      <div class="signature-block">
-       <div class="signature-line"><span>Supervisor:</span><input id="supervisor"></div>
-       <div class="signature-line"><span>Student:</span><input id="studentName"></div>
-       <div class="signature-line"><span>Signature:</span><input id="officialSignature"></div>
-       <div class="signature-line"><span>Post-op Obs:</span><input id="postOpObs"></div>
+      <h1 style="font-family:'Work Sans',sans-serif;font-size:19px;font-weight:700;margin:0;">Oral Surgery Management System</h1>
+      <p style="font-family:'Work Sans',sans-serif;font-size:14px;margin:2px 0 0;color:#66727a;">Clinical Record Dashboard</p>
+     </div>
+    </div>
+    <div class="toolbar-actions">
+     <label for="logoInput" class="action-btn secondary-btn" style="cursor:pointer;">
+      <i data-lucide="image-up"></i>
+      <span>Upload University Logo</span>
+     </label>
+     <input id="logoInput" type="file" accept="image/*" style="display:none">
+     <button id="saveDbBtn" type="button" class="action-btn secondary-btn">
+      <i data-lucide="database"></i><span>Save to Database</span>
+     </button>
+     <button id="downloadPdfBtn" type="button" class="action-btn primary-btn">
+      <i data-lucide="file-down"></i><span>Download PDF</span>
+     </button>
+     <button id="clearBtn" type="button" class="action-btn secondary-btn">
+      <i data-lucide="rotate-ccw"></i><span>Clear Sheet</span>
+     </button>
+     <button id="printBtn" type="button" class="action-btn primary-btn">
+      <i data-lucide="printer"></i><span>Print Report</span>
+     </button>
+    </div>
+   </header>
+   <main class="pages">
+    <section class="sheet" id="sheet1">
+     <div class="page-header">
+      <div class="small-head">
+       <div>TAIZ UNIVERSITY</div>
+       <div>FACULTY OF DENTISTRY</div>
+      </div>
+      <div class="logo-wrap">
+       <div class="logo-frame">
+        <img id="logoImage" loading="lazy" src="https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?q=80&w=200&auto=format&fit=crop">
+       </div>
+      </div>
+      <div class="status-box">
+       <div>
+        <span>Starting Time:</span> <input aria-label="Starting" style="border:none;border-bottom:1px dotted #888;width:54px;background:transparent;outline:none;font-size:11px;">
+       </div>
+       <div>
+        <span>Cleanliness:</span> <input aria-label="Cleanliness" style="border:none;border-bottom:1px dotted #888;width:44px;background:transparent;outline:none;font-size:11px;">
+       </div>
+       <div>
+        <span>Spittoon</span> ( &nbsp; )
+       </div>
+       <div>
+        <span>Floor</span> ( &nbsp; )
+       </div>
+       <div>
+        <span>Infection Control</span> ( &nbsp; )
+       </div>
       </div>
      </div>
-     <div>
-      <table class="score-table"><tr><th>Criteria</th><th>Max</th><th>Score</th></tr><tr><td>Sterilization</td><td>2</td><td><input id="sterilizationScore" style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent"></td></tr><tr><td>Case Sheet</td><td>1.5</td><td><input id="caseSheetScore" style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent"></td></tr><tr><td>Instruments</td><td>1.5</td><td><input id="instrumentScore" style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent"></td></tr><tr><td>Technique</td><td>5</td><td><input id="techniqueScore" style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent"></td></tr><tr><td><b>Total</b></td><td><b>10</b></td><td><input id="totalScore" style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent;font-weight:700"></td></tr></table>
+     <div class="doc-title">CASE SHEET OF ORAL SURGERY</div>
+     <div class="section">
+      <div class="section-title">1. Patient Personal Data</div>
+      <div class="line-row">
+       <div class="field name-field">
+        <label for="patientSelect">Patient Name:</label>
+        <select id="patientSelect" style="border:none;border-bottom:1px dotted #858d92;outline:none;height:20px;font:13px 'Source Serif 4',serif;padding:0 2px 1px;background:transparent;width:100%;min-width:0;">
+         <option value="">Select Patient...</option>
+        </select>
+       </div>
+       <div class="field gender-field">
+        <label for="gender">Gender:</label><input id="gender">
+       </div>
+       <div class="field age-field">
+        <label for="age">Age:</label><input id="age">
+       </div>
+       <div class="field date-field">
+        <label for="date">Date:</label><input id="date">
+       </div>
+      </div>
+      <div class="line-row">
+       <div class="field address-field">
+        <label for="address">Address:</label><input id="address">
+       </div>
+       <div class="field occupation-field">
+        <label for="occupation">Occupation:</label><input id="occupation">
+       </div>
+       <div class="field tel-field">
+        <label for="tel">Tel / Mob:</label><input id="tel">
+       </div>
+      </div>
      </div>
-    </div>
-   </div>
-  </section>
- </main>
-</div>
-<!-- Palette -->
-<div id="palette" class="palette">
- <button data-mark="O" class="red">O</button><button data-mark="O" class="blue">O</button><button data-mark="X" class="red">X</button><button data-mark="X" class="blue">X</button><button data-mark="F" class="blue">F</button><button data-mark="U" class="red">U</button><button data-mark="NE" class="blue">NE</button><button data-mark="">⌫</button>
-</div>
-<script>
-lucide.createIcons();
-// ========== PATIENT LOADER ==========
-const patientSelect = document.getElementById('patientSelect');
-const genderInp = document.getElementById('gender'), ageInp = document.getElementById('age');
-const addrInp = document.getElementById('address'), telInp = document.getElementById('tel');
-document.getElementById('date').value = new Date().toISOString().split('T')[0];
-(async function loadPatients(){
-  try {
-    const res = await fetch('/api/patients');
-    const pts = await res.json();
-    pts.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id; opt.textContent = p.name;
-      opt.dataset.age = p.age||''; opt.dataset.gender = p.gender||'';
-      opt.dataset.phone = p.phone||''; opt.dataset.address = p.address||'';
-      patientSelect.appendChild(opt);
+     <div class="section">
+      <div class="section-title">2. Chief Complaint</div><textarea class="textarea-lines" rows="2" id="chiefComplaint" aria-label="Chief complaint"></textarea>
+     </div>
+     <div class="section">
+      <div class="section-title">3. History of Present Illness</div><textarea class="textarea-lines" rows="2" id="presentIllness" aria-label="History of present illness"></textarea>
+     </div>
+     <div class="section">
+      <div class="section-title">4. Past Dental History</div><textarea class="textarea-lines" rows="1" id="pastDental" aria-label="Past dental history"></textarea>
+     </div>
+     <div class="section">
+      <div class="section-title">5. Family History</div><textarea class="textarea-lines" rows="1" id="familyHistory" aria-label="Family history"></textarea>
+     </div>
+     <div class="section">
+      <div class="section-title">
+       <span>6. Medical History</span> <span class="subnote">(Click checkboxes to select state: ✓=Yes, ✕=No)</span>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="C/V diseases">
+       <div class="medical-state"></div><span class="label">Cardiovascular Diseases</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="Endocrine disorders">
+       <div class="medical-state"></div><span class="label">Endocrine Disorders / Diabetes</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="Respiratory diseases">
+       <div class="medical-state"></div><span class="label">Respiratory Diseases / Asthma</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="Blood disorders">
+       <div class="medical-state"></div><span class="label">Blood Disorders / Bleeding Tendency</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="Liver diseases">
+       <div class="medical-state"></div><span class="label">Liver Diseases / Hepatitis</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="Kidney diseases">
+       <div class="medical-state"></div><span class="label">Renal Diseases / Kidney Failure</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="Allergies">
+       <div class="medical-state"></div><span class="label">Allergies (Penicillin, LA, etc.)</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+      <div class="checkbox-line medical-row" data-disease="Other diseases">
+       <div class="medical-state"></div><span class="label">Other Systemic Complications</span>
+       <div class="checkbox-fill">
+        <input class="medical-note">
+       </div>
+      </div>
+     </div>
+     <div class="section">
+      <div class="section-title">7. Habits</div><textarea class="textarea-lines" rows="1" id="habits" aria-label="Habits"></textarea>
+     </div>
+     <div class="section">
+      <div class="section-title">8. Clinical Examination (Extra-Oral)</div>
+      <div class="checkbox-line exam-row" data-exam="skin" data-normal="Normal skin tone and healthy mucosal texture, no signs of cyanosis, jaundice, or pallor detected upon extra-oral inspection." data-middle="Mild physiological discoloration, localized sunspots, or slight chapping noted, requiring standard non-invasive review." data-abnormal="Severe pathognomonic ulcerations, widespread continuous erythema, or deep ecchymosis observed, suggesting active systemic involvement.">
+       <div class="exam-state"></div><span class="label">Skin Tone &amp; General Appearance</span>
+       <div class="checkbox-fill">
+        <input class="exam-note">
+       </div>
+      </div>
+      <div class="checkbox-line exam-row" data-exam="face-neck" data-normal="Symmetrical bilateral facial features, normal skeletal midline harmony, no anomalous regional swelling or hyperplastic masses." data-middle="Mild localized physiological asymmetry or transient dynamic deviation present, falling within acceptable sub-clinical variances." data-abnormal="Significant facial asymmetry, unilateral macro-swelling, or palpable indurated cervical lymphadenopathy indicating active pathological processes.">
+       <div class="exam-state"></div><span class="label">Facial Symmetry &amp; Neck Exam</span>
+       <div class="checkbox-fill">
+        <input class="exam-note">
+       </div>
+      </div>
+      <div class="checkbox-line exam-row" data-exam="tmj" data-normal="Smooth synchronized TMJ condylar movement bilaterally, full pain-free opening, absence of articular clicking or crepitus sounds." data-middle="Mild sub-clinical clicking, terminal range popping, or minor structural friction without associated localized masticatory pain." data-abnormal="Severe TMJ dysfunction, structural locking, agonizing pain on movement, or pronounced lateral deviation indicating internal derangement.">
+       <div class="exam-state"></div><span class="label">Temporomandibular Joint (TMJ)</span>
+       <div class="checkbox-fill">
+        <input class="exam-note">
+       </div>
+      </div>
+      <div class="checkbox-line exam-row" data-exam="salivary" data-normal="Normal unhindered clear salivary gland flow upon major duct expression, no localized glandular tenderness or sialoliths felt." data-middle="Mild temporary hyposalivation or subjective xerostomia reported, minimal reduction in clear serous/mucous expression." data-abnormal="Severe persistent xerostomia, complete ductal blockage, purulent exudate discharge, or indurated swelling of major salivary glands.">
+       <div class="exam-state"></div><span class="label">Salivary Glands Function</span>
+       <div class="checkbox-fill">
+        <input class="exam-note">
+       </div>
+      </div>
+      <div class="checkbox-line exam-row" data-exam="mouth-opening" data-normal="Excellent uninhibited maximum mouth opening exceeding 40mm, fully proportional and synchronous jaw kinetics." data-middle="Mildly restricted jaw excursions or initial trismus measuring between 25mm and 40mm, causing slight discomfort." data-abnormal="Severely restricted pathological mouth opening under 25mm, acute structural trismus, or advanced fibrotic ankylosis.">
+       <div class="exam-state"></div><span class="label">Mouth Opening Measurement</span>
+       <div class="checkbox-fill">
+        <input class="exam-note">
+       </div>
+      </div>
+     </div>
+    </section>
+    <section class="sheet" id="sheet2">
+     <div class="section" style="margin-top:0">
+      <div class="checkbox-line exam-row" data-exam="lip" data-normal="Fully competent lips providing complete primary seal at rest, smooth dynamic posture without secondary muscle strain." data-middle="Mild lip incompetence or minor postural strain required to maintain full closure, slight marginal flaccidity noted." data-abnormal="Severe continuous lip incompetence, completely dynamic non-sealing structure, or extensive secondary pathognomonic ulcerations.">
+       <div class="exam-state"></div><span class="label">Lip Competency &amp; Lesions</span>
+       <div class="checkbox-fill">
+        <input class="exam-note">
+       </div>
+      </div>
+     </div>
+     <div class="section">
+      <div class="section-title">
+       <span>9. Clinical Examination (Intra-Oral)</span> <span class="subnote">(Click dental chart squares to apply symbols)</span>
+      </div>
+      <div class="tooth-chart-wrap">
+       <div class="tooth-legend">
+        <div>
+         ○ <span>O = Caries</span>
+        </div>
+        <div>
+         ○ <span>F = Filling</span>
+        </div>
+        <div>
+         ○ <span>X = Lost Tooth</span>
+        </div>
+        <div>
+         ○ <span>U = Unrestorable</span>
+        </div>
+        <div>
+         ○ <span>NE = Not Erupted</span>
+        </div>
+       </div>
+       <div class="tooth-grid">
+        <div class="tooth-row">
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+        </div>
+        <div class="tooth-row">
+         <div class="tooth-cell">8</div>
+         <div class="tooth-cell">7</div>
+         <div class="tooth-cell">6</div>
+         <div class="tooth-cell">5</div>
+         <div class="tooth-cell">4</div>
+         <div class="tooth-cell">3</div>
+         <div class="tooth-cell">2</div>
+         <div class="tooth-cell">1</div>
+         <div class="tooth-cell">1</div>
+         <div class="tooth-cell">2</div>
+         <div class="tooth-cell">3</div>
+         <div class="tooth-cell">4</div>
+         <div class="tooth-cell">5</div>
+         <div class="tooth-cell">6</div>
+         <div class="tooth-cell">7</div>
+         <div class="tooth-cell">8</div>
+        </div>
+        <div class="tooth-row">
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+         <div class="tooth-cell mark-cell"></div>
+        </div>
+       </div>
+      </div>
+      <div class="spacer-4"></div>
+      <div class="checkbox-line">
+       <span>○</span><span class="label">Gingiva condition (Inflammation, Recession)</span>
+       <div class="checkbox-fill">
+        <input class="oral-condition-note" id="gingivaNote">
+       </div>
+      </div>
+      <div class="checkbox-line">
+       <span>○</span><span class="label">Periodontal Status (Pockets, Mobility)</span>
+       <div class="checkbox-fill">
+        <input class="oral-condition-note" id="perioNote">
+       </div>
+      </div>
+      <div class="checkbox-line">
+       <span>○</span><span class="label">Occlusion &amp; Malalignment Records</span>
+       <div class="checkbox-fill">
+        <input class="oral-condition-note" id="occlusionNote">
+       </div>
+      </div>
+      <div class="checkbox-line">
+       <span>○</span><span class="label">Oral Mucosa (Cheeks, Palate, Tongue)</span>
+       <div class="checkbox-fill">
+        <input class="oral-condition-note" id="mucosaNote">
+       </div>
+      </div>
+     </div>
+     <div class="section">
+      <div class="section-title">
+       <span>10. Pre-operative Investigations</span> <span class="subnote">(Medical Tests Required)</span>
+      </div>
+      <div style="font-size:11px;text-align:center;margin:2px 0 1px;font-weight:600;">(Focus text area to view dropdown options)</div>
+      <div class="investigations-input-wrapper" style="position:relative;">
+       <textarea class="textarea-lines investigations-input" rows="3" id="investigationsInput" aria-label="Investigations"></textarea>
+       <div id="investigationsDropdown" class="investigations-dropdown" style="display:none;position:absolute;top:100%;left:0;">
+        <div class="investigation-option" data-value="Lab test (Blood test, Complete Blood Count CBC, Bleeding Time BT, Clotting Time CT, Blood Culture)">Lab test (Blood test, Complete Blood Count CBC, Bleeding Time BT, Clotting Time CT, Blood Culture)</div>
+        <div class="investigation-option" data-value="Intraoral Periapical X-ray (IOPA) / Panoramic Radiograph (OPG) for structural verification">Intraoral Periapical X-ray (IOPA) / Panoramic Radiograph (OPG) for structural verification</div>
+        <div class="investigation-option" data-value="Advanced Imagingology test (Computed Tomography CT, Cone Beam CT CBCT, MRI, Ultrasound)">Advanced Imagingology test (Computed Tomography CT, Cone Beam CT CBCT, MRI, Ultrasound)</div>
+        <div class="investigation-option" data-value="Incisional / Excisional Histopathological Biopsy for deep soft tissue lesions">Incisional / Excisional Histopathological Biopsy for deep soft tissue lesions</div>
+        <div class="investigation-option" data-value="Microbiology test (Gram staining, aerobic and anaerobic bacterial swab cultures)">Microbiology test (Gram staining, aerobic and anaerobic bacterial swab cultures)</div>
+       </div>
+      </div>
+     </div>
+     <div class="section">
+      <div class="section-title">
+       <span>11. Final Clinical Diagnosis</span> <span class="subnote">(Target Teeth Indication)</span>
+      </div>
+      <div class="diagnosis-input-wrapper" style="position:relative;">
+       <textarea class="textarea-lines diagnosis-input" rows="3" id="diagnosisInput" aria-label="Diagnosis"></textarea>
+       <div id="diagnosisDropdown" class="diagnosis-dropdown" style="display:none;position:absolute;top:100%;left:0;">
+        <div class="diagnosis-option" data-value="Primary deciduous teeth extraction due to physiologic root resorption / prolonged retention">Primary deciduous teeth extraction due to physiologic root resorption / prolonged retention</div>
+        <div class="diagnosis-option" data-value="Sub-gingival root remnants / retained root tips with chronic mechanical irritation">Sub-gingival root remnants / retained root tips with chronic mechanical irritation</div>
+        <div class="diagnosis-option" data-value="Unrestorable deep dental caries reaching pulp floor with extensive crown loss">Unrestorable deep dental caries reaching pulp floor with extensive crown loss</div>
+        <div class="diagnosis-option" data-value="Acute periapical inflammation / localized alveolar abscess of odontogenic origin">Acute periapical inflammation / localized alveolar abscess of odontogenic origin</div>
+        <div class="diagnosis-option" data-value="Severely mobile tooth due to continuous advanced horizontal and vertical bone resorption">Severely mobile tooth due to continuous advanced horizontal and vertical bone resorption</div>
+       </div>
+      </div>
+     </div>
+     <div class="section">
+      <div class="section-title">
+       <span>12. Surgical Treatment Plan &amp; Assessment</span> <span class="subnote">(Clinical Verification)</span>
+      </div>
+      <div class="treatment-grid">
+       <div>
+        <div class="plan-list">
+         <div class="plan-row">
+          <span>1.</span><input aria-label="Treatment plan 1" id="plan1">
+         </div>
+         <div class="plan-row">
+          <span>2.</span><input aria-label="Treatment plan 2" id="plan2">
+         </div>
+         <div class="plan-row">
+          <span>3.</span><input aria-label="Treatment plan 3" id="plan3">
+         </div>
+         <div class="plan-row">
+          <span>4.</span><input aria-label="Treatment plan 4" id="plan4">
+         </div>
+        </div>
+        <div class="signature-block">
+         <div class="signature-line">
+          <span>Clinical Supervisor:</span><input aria-label="Supervisor" id="supervisor">
+         </div>
+         <div class="signature-line">
+          <span>Student Operator Name:</span><input aria-label="Student name" id="studentName">
+         </div>
+         <div class="signature-line">
+          <span>Official Signature:</span><input aria-label="Signature" id="officialSignature">
+         </div>
+         <div class="signature-line">
+          <span>Post-op Observations:</span><input aria-label="Observations" id="postOpObs">
+         </div>
+        </div>
+        <div class="small-note-box">
+         <div><span>Finish Time:</span> <input aria-label="Finish time" style="width:60px;border:none;border-bottom:1px dotted #888;background:transparent;outline:none;"></div>
+         <div><span>Cubicle Status:</span></div>
+         <div><span>Spittoon</span> ( &nbsp; )</div>
+         <div><span>Floor</span> ( &nbsp; )</div>
+         <div><span>Infection Control</span> ( &nbsp; )</div>
+        </div>
+       </div>
+       <div>
+        <table class="score-table">
+         <tbody>
+          <tr>
+           <th>Oral Surgery Lab</th>
+           <th>Case Sheet Grade</th>
+          </tr>
+          <tr>
+           <td>Assessment Criteria</td>
+           <td></td>
+          </tr>
+         </tbody>
+        </table>
+        <table class="score-table" style="margin-top:4px;">
+         <tbody>
+          <tr>
+           <th>Practical Procedures &amp; Steps</th>
+           <th>Max Mark</th>
+           <th style="width:55px;">Degree</th>
+          </tr>
+          <tr>
+           <td>Sterilization &amp; Infection Control</td>
+           <td>2</td>
+           <td><input style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent;" id="sterilizationScore"></td>
+          </tr>
+          <tr>
+           <td>Case Sheet Completeness</td>
+           <td>1.5</td>
+           <td><input style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent;" id="caseSheetScore"></td>
+          </tr>
+          <tr>
+           <td>Instrument Selection &amp; Setup</td>
+           <td>1.5</td>
+           <td><input style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent;" id="instrumentScore"></td>
+          </tr>
+          <tr>
+           <td>Extraction Technique &amp; Skill</td>
+           <td>5</td>
+           <td><input style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent;" id="techniqueScore"></td>
+          </tr>
+          <tr>
+           <td>Total Student Evaluation Record</td>
+           <td>10</td>
+           <td><input style="width:40px;border:none;border-bottom:1px dotted #888;text-align:center;background:transparent;font-weight:700;" id="totalScore"></td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div>
+    </section>
+   </main>
+  </div>
+  <div id="palette" class="palette">
+   <button data-mark="O" data-color="red" class="red">O</button>
+   <button data-mark="O" data-color="blue" class="blue">O</button>
+   <button data-mark="X" data-color="red" class="red">X</button>
+   <button data-mark="X" data-color="blue" class="blue">X</button>
+   <button data-mark="F" data-color="blue" class="blue">F</button>
+   <button data-mark="U" data-color="red" class="red">U</button>
+   <button data-mark="NE" data-color="blue" class="blue">NE</button>
+   <button data-mark="" data-color="">⌫</button>
+  </div>
+  <script>
+    lucide.createIcons();
+
+    // ========== PATIENT SELECT LOGIC ==========
+    const patientSelect = document.getElementById('patientSelect');
+    const genderInput = document.getElementById('gender');
+    const ageInput = document.getElementById('age');
+    const addressInput = document.getElementById('address');
+    const telInput = document.getElementById('tel');
+    const dateInput = document.getElementById('date');
+    
+    dateInput.value = new Date().toISOString().split('T')[0];
+
+    async function loadPatients() {
+        try {
+            const res = await fetch('/api/patients');
+            if (!res.ok) throw new Error('Failed to fetch patients');
+            const patients = await res.json();
+            patients.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.name;
+                option.dataset.age = p.age || '';
+                option.dataset.gender = p.gender || '';
+                option.dataset.phone = p.phone || '';
+                option.dataset.address = p.address || '';
+                patientSelect.appendChild(option);
+            });
+        } catch (e) {
+            console.error('Could not load patients:', e);
+        }
+    }
+
+    patientSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (!selectedOption.value) {
+            genderInput.value = '';
+            ageInput.value = '';
+            addressInput.value = '';
+            telInput.value = '';
+            return;
+        }
+        genderInput.value = selectedOption.dataset.gender || '';
+        ageInput.value = selectedOption.dataset.age || '';
+        addressInput.value = selectedOption.dataset.address || '';
+        telInput.value = selectedOption.dataset.phone || '';
     });
-  } catch(e){ console.error(e); }
-})();
-patientSelect.addEventListener('change', function(){
-  const o = this.options[this.selectedIndex];
-  if(!o.value){ genderInp.value=''; ageInp.value=''; addrInp.value=''; telInp.value=''; return; }
-  genderInp.value = o.dataset.gender||''; ageInp.value = o.dataset.age||'';
-  addrInp.value = o.dataset.address||''; telInp.value = o.dataset.phone||'';
-});
 
-// ========== MEDICAL & EXAM TOGGLES ==========
-document.querySelectorAll('.medical-row').forEach(row=>{
-  const state = row.querySelector('.medical-state');
-  const note = row.querySelector('.medical-note');
-  let mode = 0;
-  state.addEventListener('click', ()=>{
-    mode = (mode+1)%3;
-    state.classList.remove('checked','crossed');
-    if(mode===0){ state.textContent=''; note.value=''; }
-    else if(mode===1){ state.textContent='✓'; state.classList.add('checked'); note.value='Patient has this condition.'; }
-    else { state.textContent='✕'; state.classList.add('crossed'); note.value='Patient does not have this condition.'; }
-  });
-});
-document.querySelectorAll('.exam-row').forEach(row=>{
-  const stateEl = row.querySelector('.exam-state');
-  const noteEl = row.querySelector('.exam-note');
-  let state = 0;
-  const texts = ['','✓','⚠','✕'];
-  const classes = ['','normal','middle','abnormal'];
-  stateEl.addEventListener('click', (e)=>{
-    state = (state+1)%4;
-    stateEl.classList.remove('normal','middle','abnormal');
-    stateEl.textContent = texts[state];
-    if(state) stateEl.classList.add(classes[state]);
-    noteEl.value = state ? (state===1?'Normal':state===2?'Mild deviation':'Significant abnormality') : '';
-    e.stopPropagation();
-  });
-});
+    loadPatients();
 
-// ========== TOOTH CHART ==========
-const grid = document.getElementById('toothGrid');
-const TEETH = [8,7,6,5,4,3,2,1,1,2,3,4,5,6,7,8];
-for(let row=0; row<3; row++){
-  const div = document.createElement('div'); div.className = 'tooth-row';
-  for(let col=0; col<16; col++){
-    const cell = document.createElement('div');
-    cell.className = 'tooth-cell' + (row===1 ? '' : ' mark-cell');
-    if(row===1) cell.textContent = TEETH[col];
-    else cell.addEventListener('click', function(e){ showPalette(e, cell); });
-    div.appendChild(cell);
-  }
-  grid.appendChild(div);
-}
+    // ========== SAVE TO DATABASE ==========
+    document.getElementById('saveDbBtn').addEventListener('click', async function() {
+        const patientId = patientSelect.value;
+        if (!patientId) {
+            alert('Please select a patient first.');
+            return;
+        }
 
-// ========== PALETTE ==========
-const palette = document.getElementById('palette');
-let activeCell = null;
-function showPalette(e, cell){
-  activeCell = cell;
-  const rect = cell.getBoundingClientRect();
-  palette.style.left = Math.min(rect.left, window.innerWidth-200)+'px';
-  palette.style.top = (rect.bottom+5)+'px';
-  palette.style.display = 'flex';
-}
-palette.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
-  if(!activeCell) return;
-  activeCell.textContent = b.dataset.mark;
-  activeCell.classList.remove('red','blue');
-  if(b.dataset.color) activeCell.classList.add(b.dataset.color);
-  palette.style.display = 'none';
-}));
-document.addEventListener('click', (e)=>{ if(!palette.contains(e.target)) palette.style.display = 'none'; });
+        // Gather all data
+        const data = {
+            patient_id: patientId,
+            gender: genderInput.value,
+            age: ageInput.value,
+            date: dateInput.value,
+            address: addressInput.value,
+            occupation: document.getElementById('occupation').value,
+            tel: telInput.value,
+            chief_complaint: document.getElementById('chiefComplaint').value,
+            present_illness: document.getElementById('presentIllness').value,
+            past_dental: document.getElementById('pastDental').value,
+            family_history: document.getElementById('familyHistory').value,
+            habits: document.getElementById('habits').value,
+            investigations: document.getElementById('investigationsInput').value,
+            diagnosis: document.getElementById('diagnosisInput').value,
+            medical: Array.from(document.querySelectorAll('.medical-row')).map(row => ({
+                disease: row.dataset.disease,
+                state: row.querySelector('.medical-state').classList.contains('checked') ? 'Yes' : (row.querySelector('.medical-state').classList.contains('crossed') ? 'No' : 'Unknown'),
+                notes: row.querySelector('.medical-note').value
+            })),
+            exam: Array.from(document.querySelectorAll('.exam-row')).map(row => ({
+                exam: row.dataset.exam,
+                state: row.querySelector('.exam-state').classList.contains('normal') ? 'Normal' : (row.querySelector('.exam-state').classList.contains('middle') ? 'Middle' : (row.querySelector('.exam-state').classList.contains('abnormal') ? 'Abnormal' : 'Unknown')),
+                notes: row.querySelector('.exam-note').value
+            })),
+            teeth: Array.from(document.querySelectorAll('.mark-cell')).map(cell => cell.textContent),
+            gingiva: document.getElementById('gingivaNote').value,
+            periodontal: document.getElementById('perioNote').value,
+            occlusion: document.getElementById('occlusionNote').value,
+            mucosa: document.getElementById('mucosaNote').value,
+            treatment_plan: [
+                document.getElementById('plan1').value,
+                document.getElementById('plan2').value,
+                document.getElementById('plan3').value,
+                document.getElementById('plan4').value
+            ],
+            supervisor: document.getElementById('supervisor').value,
+            student: document.getElementById('studentName').value,
+            signature: document.getElementById('officialSignature').value,
+            post_op_obs: document.getElementById('postOpObs').value,
+            scores: {
+                sterilization: document.getElementById('sterilizationScore').value,
+                case_sheet: document.getElementById('caseSheetScore').value,
+                instruments: document.getElementById('instrumentScore').value,
+                technique: document.getElementById('techniqueScore').value,
+                total: document.getElementById('totalScore').value
+            }
+        };
 
-// ========== DROPDOWNS ==========
-const invInput = document.getElementById('investigationsInput'), invDD = document.getElementById('investigationsDropdown');
-const diagInput = document.getElementById('diagnosisInput'), diagDD = document.getElementById('diagnosisDropdown');
-const invOpts = ['Lab test (CBC, BT, CT)','IOPA / OPG','CT, CBCT, MRI','Biopsy','Microbiology test'];
-const diagOpts = ['Deciduous teeth extraction','Root remnants','Unrestorable caries','Periapical abscess','Severe mobility'];
-invDD.innerHTML = invOpts.map(o=>`<div class="investigation-option">${o}</div>`).join('');
-diagDD.innerHTML = diagOpts.map(o=>`<div class="diagnosis-option">${o}</div>`).join('');
-invInput.addEventListener('focus', ()=>invDD.style.display='block');
-invInput.addEventListener('blur', ()=>setTimeout(()=>invDD.style.display='none',150));
-diagInput.addEventListener('focus', ()=>diagDD.style.display='block');
-diagInput.addEventListener('blur', ()=>setTimeout(()=>diagDD.style.display='none',150));
-document.querySelectorAll('.investigation-option').forEach(o=>o.addEventListener('click', function(){
-  invInput.value = invInput.value ? invInput.value+'\n'+this.textContent : this.textContent;
-  invDD.style.display='none';
-}));
-document.querySelectorAll('.diagnosis-option').forEach(o=>o.addEventListener('click', function(){
-  diagInput.value = diagInput.value ? diagInput.value+'\n'+this.textContent : this.textContent;
-  diagDD.style.display='none';
-}));
+        try {
+            const res = await fetch('/api/case-sheets/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ patient_id: patientId, sheet_type: 'oral_surgery', data: data })
+            });
+            const result = await res.json();
+            if (result.status === 'ok') {
+                alert('Case sheet saved successfully! ID: ' + result.id);
+            } else {
+                alert('Error saving case sheet.');
+            }
+        } catch (e) {
+            alert('Network error. Could not save.');
+            console.error(e);
+        }
+    });
 
-// ========== TREATMENT PLAN LINES ==========
-const planList = document.getElementById('planList');
-for(let i=1; i<=4; i++){
-  const row = document.createElement('div'); row.className = 'plan-row';
-  row.innerHTML = `<span>${i}.</span><input>`;
-  planList.appendChild(row);
-}
+    // ========== PDF DOWNLOAD LOGIC ==========
+    document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        const sheet1 = document.getElementById('sheet1');
+        const sheet2 = document.getElementById('sheet2');
 
-// ========== PDF DOWNLOAD (EXACT MATCH) ==========
-document.getElementById('downloadPdfBtn').addEventListener('click', async ()=>{
-  const sheet1 = document.getElementById('sheet1');
-  const sheet2 = document.getElementById('sheet2');
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF('p','mm','a4');
-  const opts = { scale:2, backgroundColor:'#ffffff', useCORS:true };
-  
-  const canvas1 = await html2canvas(sheet1, opts);
-  const canvas2 = await html2canvas(sheet2, opts);
-  
-  // PNG ensures exact visual match
-  const img1 = canvas1.toDataURL('image/png');
-  const img2 = canvas2.toDataURL('image/png');
-  
-  const width = 190;
-  const height1 = canvas1.height * width / canvas1.width;
-  const height2 = canvas2.height * width / canvas2.width;
-  
-  pdf.addImage(img1, 'PNG', 10, 10, width, height1);
-  if(height2 > 0){ pdf.addPage(); pdf.addImage(img2, 'PNG', 10, 10, width, height2); }
-  
-  pdf.save('Oral_Surgery_Case_Sheet.pdf');
-});
+        const canvas1 = await html2canvas(sheet1, { scale: 2, backgroundColor: '#ffffff' });
+        const canvas2 = await html2canvas(sheet2, { scale: 2, backgroundColor: '#ffffff' });
 
-// ========== SAVE TO DB ==========
-document.getElementById('saveDbBtn').addEventListener('click', async ()=>{
-  const pid = patientSelect.value;
-  if(!pid) return alert('Select a patient');
-  const data = {}; // Collect all fields
-  // Simplified: send the entire innerText or use FormData – we'll use the previous working save logic
-  alert('Save functionality active. (Data collection script can be extended)');
-});
+        const img1 = canvas1.toDataURL('image/png');
+        const img2 = canvas2.toDataURL('image/png');
 
-// ========== CLEAR ==========
-document.getElementById('clearBtn').addEventListener('click', ()=>{
-  document.querySelectorAll('input[type="text"], textarea').forEach(el=>{ if(el.id!=='logoInput') el.value=''; });
-  document.querySelectorAll('.medical-state,.exam-state').forEach(el=>{ el.textContent=''; el.className=el.className.replace(/checked|crossed|normal|middle|abnormal/g,''); });
-  document.querySelectorAll('.mark-cell').forEach(el=>{ el.textContent=''; el.classList.remove('red','blue'); });
-  patientSelect.selectedIndex=0; genderInp.value=''; ageInp.value=''; addrInp.value=''; telInp.value='';
-});
-</script>
-</body>
+        const width = 190;
+        const height1 = canvas1.height * width / canvas1.width;
+        const height2 = canvas2.height * width / canvas2.width;
+
+        pdf.addImage(img1, 'PNG', 10, 10, width, height1);
+        if (height2 > 0) {
+            pdf.addPage();
+            pdf.addImage(img2, 'PNG', 10, 10, width, height2);
+        }
+
+        pdf.save('Oral_Surgery_Case_Sheet.pdf');
+    });
+
+    // ========== EXISTING INTERACTIONS (Unchanged from original code) ==========
+    const logoInput = document.getElementById('logoInput');
+    const logoImage = document.getElementById('logoImage');
+    const savedLogo = localStorage.getItem('oralSurgeryLogo');
+    if (savedLogo) logoImage.src = savedLogo;
+    logoInput.addEventListener('change', function(e){
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt){
+        logoImage.src = evt.target.result;
+        localStorage.setItem('oralSurgeryLogo', evt.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+    function fitInputText(input){
+      input.style.fontSize = '13px';
+      let size = 13;
+      while(input.scrollWidth > input.clientWidth && size > 9){
+        size -= .5;
+        input.style.fontSize = size + 'px';
+      }
+    }
+
+    document.querySelectorAll('.medical-row').forEach(row=>{
+      const state = row.querySelector('.medical-state');
+      const note = row.querySelector('.medical-note');
+      let mode = 0;
+      state.addEventListener('click', function(){
+        mode = (mode + 1) % 3;
+        state.classList.remove('checked','crossed');
+        if(mode === 0){
+          state.textContent = '';
+          note.value = '';
+        } else if(mode === 1){
+          state.textContent = '✓';
+          state.classList.add('checked');
+          note.value = 'According to the patient report, the patient has this disease.';
+        } else {
+          state.textContent = '✕';
+          state.classList.add('crossed');
+          note.value = 'According to the patient report, the patient does not have this disease.';
+        }
+        fitInputText(note);
+      });
+    });
+
+    document.querySelectorAll('.exam-row').forEach(row => {
+      const stateEl = row.querySelector('.exam-state');
+      const noteEl = row.querySelector('.exam-note');
+      const normalText = row.dataset.normal;
+      const middleText = row.dataset.middle;
+      const abnormalText = row.dataset.abnormal;
+      let state = 0;
+      stateEl.addEventListener('click', function(e) {
+        state = (state + 1) % 4;
+        stateEl.classList.remove('normal', 'middle', 'abnormal');
+        if (state === 0) {
+          stateEl.textContent = '';
+          noteEl.value = '';
+        } else if (state === 1) {
+          stateEl.textContent = '✓';
+          stateEl.classList.add('normal');
+          noteEl.value = normalText;
+        } else if (state === 2) {
+          stateEl.textContent = '⚠';
+          stateEl.classList.add('middle');
+          noteEl.value = middleText;
+        } else if (state === 3) {
+          stateEl.textContent = '✕';
+          stateEl.classList.add('abnormal');
+          noteEl.value = abnormalText;
+        }
+        fitInputText(noteEl);
+        e.stopPropagation(); 
+      });
+    });
+
+    const investigationsInput = document.getElementById('investigationsInput');
+    const investigationsDropdown = document.getElementById('investigationsDropdown');
+    if (investigationsInput) {
+      investigationsInput.addEventListener('focus', () => investigationsDropdown.style.display = 'block');
+      investigationsInput.addEventListener('blur', () => setTimeout(() => investigationsDropdown.style.display = 'none', 150));
+    }
+    document.querySelectorAll('.investigation-option').forEach(option => {
+      option.addEventListener('click', function() {
+        investigationsInput.value = investigationsInput.value ? investigationsInput.value + '\n' + this.dataset.value : this.dataset.value;
+        investigationsDropdown.style.display = 'none';
+        investigationsInput.focus();
+      });
+    });
+
+    const diagnosisInput = document.getElementById('diagnosisInput');
+    const diagnosisDropdown = document.getElementById('diagnosisDropdown');
+    if (diagnosisInput) {
+      diagnosisInput.addEventListener('focus', () => diagnosisDropdown.style.display = 'block');
+      diagnosisInput.addEventListener('blur', () => setTimeout(() => diagnosisDropdown.style.display = 'none', 150));
+      diagnosisInput.addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('.diagnosis-option').forEach(option => {
+          option.style.display = option.dataset.value.toLowerCase().includes(val) || val === '' ? 'block' : 'none';
+        });
+      });
+    }
+    document.querySelectorAll('.diagnosis-option').forEach(option => {
+      option.addEventListener('click', function() {
+        diagnosisInput.value = diagnosisInput.value ? diagnosisInput.value + '\n' + this.dataset.value : this.dataset.value;
+        diagnosisDropdown.style.display = 'none';
+        diagnosisInput.focus();
+      });
+    });
+
+    const palette = document.getElementById('palette');
+    let activeCell = null;
+    document.querySelectorAll('.mark-cell').forEach(cell=>{
+      cell.addEventListener('click', function(e){
+        activeCell = cell;
+        const rect = cell.getBoundingClientRect();
+        palette.style.left = Math.min(rect.left, window.innerWidth - 190) + 'px';
+        palette.style.top = (rect.bottom + 5) + 'px';
+        palette.style.display = 'flex';
+      });
+    });
+    palette.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', function(){
+        if(!activeCell) return;
+        const mark = btn.dataset.mark;
+        const color = btn.dataset.color;
+        activeCell.textContent = mark;
+        activeCell.classList.remove('red','blue');
+        if(color) activeCell.classList.add(color);
+        palette.style.display = 'none';
+        activeCell = null;
+      });
+    });
+    document.addEventListener('click', function(e){
+      if(!palette.contains(e.target) && !e.target.classList.contains('mark-cell')){
+        palette.style.display = 'none';
+      }
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function(){
+      document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+        if (el.id !== 'logoInput' && el !== patientSelect) el.value = '';
+      });
+      document.querySelectorAll('.medical-state').forEach(el=>{ el.textContent = ''; el.classList.remove('checked','crossed'); });
+      document.querySelectorAll('.exam-state').forEach(el=>{ el.textContent = ''; el.classList.remove('normal','middle','abnormal'); });
+      document.querySelectorAll('.mark-cell').forEach(el=>{ el.textContent = ''; el.classList.remove('red','blue'); });
+      patientSelect.selectedIndex = 0;
+      genderInput.value = '';
+      ageInput.value = '';
+      addressInput.value = '';
+      telInput.value = '';
+    });
+  </script>
+ </body>
 </html>
