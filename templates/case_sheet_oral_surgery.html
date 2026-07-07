@@ -207,15 +207,14 @@
       margin:2px 0;
       width:100%;
     }
-    .medical-state{
-      width:14px;height:14px;
+    .medical-state, .exam-state {
+      width:16px;height:16px;
       border:1px solid #5c666d;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:inline-block;
+      text-align:center;
+      line-height:14px;
       font-family:'Work Sans',sans-serif;
       font-size:12px;
-      line-height:1;
       cursor:pointer;
       flex:none;
       user-select:none;
@@ -269,21 +268,6 @@
     .oral-condition-note:focus{
       background:rgba(15,94,107,.035);
       box-shadow:0 1px 0 rgba(15,94,107,.35);
-    }
-    .exam-state{
-      width:14px;height:14px;
-      border:1px solid #5c666d;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-family:'Work Sans',sans-serif;
-      font-size:12px;
-      line-height:1;
-      cursor:pointer;
-      flex:none;
-      user-select:none;
-      background:#fff;
-      transition:all .15s ease;
     }
     .exam-state.normal{
       background:#e3f2fd;
@@ -990,7 +974,6 @@
             return;
         }
 
-        // Gather all data
         const data = {
             patient_id: patientId,
             gender: genderInput.value,
@@ -1058,7 +1041,7 @@
         }
     });
 
-    // ========== PDF DOWNLOAD LOGIC ==========
+    // ========== PDF DOWNLOAD LOGIC (SMART CLONING & POSITION FIX) ==========
     document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1066,26 +1049,85 @@
         const sheet1 = document.getElementById('sheet1');
         const sheet2 = document.getElementById('sheet2');
 
-        const canvas1 = await html2canvas(sheet1, { scale: 2, backgroundColor: '#ffffff' });
-        const canvas2 = await html2canvas(sheet2, { scale: 2, backgroundColor: '#ffffff' });
-
-        const img1 = canvas1.toDataURL('image/png');
-        const img2 = canvas2.toDataURL('image/png');
-
-        const width = 190;
-        const height1 = canvas1.height * width / canvas1.width;
-        const height2 = canvas2.height * width / canvas2.width;
-
-        pdf.addImage(img1, 'PNG', 10, 10, width, height1);
-        if (height2 > 0) {
-            pdf.addPage();
-            pdf.addImage(img2, 'PNG', 10, 10, width, height2);
+        function prepareClone(element) {
+            const clone = element.cloneNode(true);
+            
+            // Sync all user inputs/textareas/selects into HTML static text
+            const originalInputs = element.querySelectorAll('input, select, textarea');
+            const cloneInputs = clone.querySelectorAll('input, select, textarea');
+            
+            originalInputs.forEach((orig, idx) => {
+                const target = cloneInputs[idx];
+                if (!target) return;
+                
+                const parent = target.parentNode;
+                const value = orig.value || '';
+                
+                const span = document.createElement('span');
+                span.textContent = value;
+                span.className = target.className;
+                span.setAttribute('style', target.getAttribute('style') || '');
+                span.style.border = 'none';
+                span.style.display = 'inline-block';
+                span.style.minHeight = '16px';
+                span.style.fontFamily = "'Source Serif 4', serif";
+                span.style.fontSize = target.style.fontSize || '13px';
+                span.style.color = '#1f2933';
+                
+                if (target.tagName.toLowerCase() === 'textarea') {
+                    span.style.whiteSpace = 'pre-wrap';
+                    span.style.background = 'transparent';
+                    span.style.width = '100%';
+                    span.style.lineHeight = '21px';
+                } else if (target.id === 'sterilizationScore' || target.id === 'caseSheetScore' || target.id === 'instrumentScore' || target.id === 'techniqueScore' || target.id === 'totalScore') {
+                    span.style.textAlign = 'center';
+                    span.style.width = '100%';
+                    span.style.fontWeight = '700';
+                }
+                
+                parent.replaceChild(span, target);
+            });
+            
+            clone.style.position = 'absolute';
+            clone.style.left = '-9999px';
+            clone.style.top = '0';
+            clone.style.background = '#ffffff';
+            clone.style.width = '794px'; 
+            document.body.appendChild(clone);
+            return clone;
         }
 
-        pdf.save('Oral_Surgery_Case_Sheet.pdf');
+        const cleanSheet1 = prepareClone(sheet1);
+        const cleanSheet2 = prepareClone(sheet2);
+
+        try {
+            const canvas1 = await html2canvas(cleanSheet1, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+            const canvas2 = await html2canvas(cleanSheet2, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+
+            const img1 = canvas1.toDataURL('image/png');
+            const img2 = canvas2.toDataURL('image/png');
+
+            const width = 190;
+            const height1 = canvas1.height * width / canvas1.width;
+            const height2 = canvas2.height * width / canvas2.width;
+
+            pdf.addImage(img1, 'PNG', 10, 10, width, height1);
+            if (height2 > 0) {
+                pdf.addPage();
+                pdf.addImage(img2, 'PNG', 10, 10, width, height2);
+            }
+
+            pdf.save('Oral_Surgery_Case_Sheet.pdf');
+        } catch (err) {
+            console.error("PDF generation failed", err);
+            alert("Error generating PDF.");
+        } finally {
+            cleanSheet1.remove();
+            cleanSheet2.remove();
+        }
     });
 
-    // ========== EXISTING INTERACTIONS (Unchanged from original code) ==========
+    // ========== EXISTING INTERACTIONS ==========
     const logoInput = document.getElementById('logoInput');
     const logoImage = document.getElementById('logoImage');
     const savedLogo = localStorage.getItem('oralSurgeryLogo');
@@ -1174,7 +1216,8 @@
     }
     document.querySelectorAll('.investigation-option').forEach(option => {
       option.addEventListener('click', function() {
-        investigationsInput.value = investigationsInput.value ? investigationsInput.value + '\n' + this.dataset.value : this.dataset.value;
+        investigationsInput.value = investigationsInput.value ? investigationsInput.value + '
+' + this.dataset.value : this.dataset.value;
         investigationsDropdown.style.display = 'none';
         investigationsInput.focus();
       });
@@ -1194,7 +1237,8 @@
     }
     document.querySelectorAll('.diagnosis-option').forEach(option => {
       option.addEventListener('click', function() {
-        diagnosisInput.value = diagnosisInput.value ? diagnosisInput.value + '\n' + this.dataset.value : this.dataset.value;
+        diagnosisInput.value = diagnosisInput.value ? diagnosisInput.value + '
+' + this.dataset.value : this.dataset.value;
         diagnosisDropdown.style.display = 'none';
         diagnosisInput.focus();
       });
