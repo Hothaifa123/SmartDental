@@ -311,7 +311,41 @@ async function addAppointment(){let patient_id=document.getElementById('appt-pat
 function renderAppointments(){document.getElementById('appointments-list').innerHTML=APPS.map(a=>`<div class="card text-sm flex justify-between"><span><b>${a.patient_name||'Unknown'}</b> - ${a.date} ${a.time}</span><span>${a.reason||''}</span></div>`).join('')}
 async function openProfile(id){currentProfile=P.find(p=>p.id==id);if(!currentProfile)return;document.getElementById('profile-name').textContent=currentProfile.name;document.getElementById('patients-list').style.display='none';document.getElementById('patient-profile').style.display='block';document.getElementById('patients').querySelector('.card').style.display='none';PATIENT_RX = await api('/api/patient/'+id+'/prescriptions');showTab('general')}
 function closeProfile(){document.getElementById('patient-profile').style.display='none';document.getElementById('patients-list').style.display='block';document.getElementById('patients').querySelector('.card').style.display='block'}
-function showTab(tab){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');document.getElementById(`tab-${tab}`).classList.add('active');let p=currentProfile;if(tab==='general'){document.getElementById('tab-general').innerHTML=`<p><b>Name:</b> ${p.name}</p><p><b>Age:</b> ${p.age}</p><p><b>Gender:</b> ${p.gender}</p><p><b>Phone:</b> ${p.phone||'-'}</p>`}else if(tab==='medical'){document.getElementById('tab-medical').innerHTML=`<p><b>Chronic Diseases:</b> ${p.chronic_diseases||'-'}</p><p><b>Allergies:</b> ${p.allergies||'-'}</p><p><b>Medications:</b> ${p.chronic_drugs||'-'}</p>`}else if(tab==='dental'){document.getElementById('tab-dental').innerHTML=`<p>Dental history will be added in future update.</p>`}else if(tab==='visits'){document.getElementById('tab-visits').innerHTML=`<p>Visit records coming soon.</p>`}else if(tab==='rx'){if(PATIENT_RX.length){document.getElementById('tab-rx').innerHTML=PATIENT_RX.map(rx=>{let items=JSON.parse(rx.items_json||'[]');let date=rx.created_at?new Date(rx.created_at).toLocaleDateString('en-GB'):'Unknown date';return`<div class="card"><h4 class="font-bold">${rx.diagnosis||'No diagnosis'}</h4><p class="text-xs text-gray-500">${date}</p>${items.map(i=>`<p class="text-xs">💊 ${i.drug_name} - ${i.dosage} ${i.frequency}</p>`).join('')}</div>`}).join('')}else{document.getElementById('tab-rx').innerHTML='<p>No prescriptions yet.</p>'}}}
+function showTab(tab){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    let p=currentProfile;
+    if(tab==='general'){
+        document.getElementById('tab-general').innerHTML=`
+        <div class="grid-2">
+            <div class="card"><h3 class="font-bold">Personal Info</h3><p><b>Name:</b> ${p.name}</p><p><b>Age:</b> ${p.age}</p><p><b>Gender:</b> ${p.gender}</p><p><b>Phone:</b> ${p.phone||'-'}</p><p><b>Weight:</b> ${p.weight||'-'} kg</p></div>
+            <div class="card"><h3 class="font-bold">Contact</h3><p>Phone: ${p.phone||'-'}</p></div>
+        </div>`;
+    }else if(tab==='medical'){
+        document.getElementById('tab-medical').innerHTML=`
+        <div class="grid-2">
+            <div class="card"><h3 class="font-bold">Chronic Diseases</h3><p>${p.chronic_diseases||'None'}</p></div>
+            <div class="card"><h3 class="font-bold">Allergies</h3><p>${p.allergies||'None'}</p></div>
+            <div class="card"><h3 class="font-bold">Chronic Medications</h3><p>${p.chronic_drugs||'None'}</p></div>
+        </div>`;
+    }else if(tab==='dental'){
+        document.getElementById('tab-dental').innerHTML=`<div class="card"><h3 class="font-bold">Dental History</h3><p>Will be updated in future visits.</p></div>`;
+    }else if(tab==='visits'){
+        document.getElementById('tab-visits').innerHTML=`<div class="card"><h3 class="font-bold">Visits</h3><p>Visit records coming soon.</p></div>`;
+    }else if(tab==='rx'){
+        if(PATIENT_RX.length){
+            document.getElementById('tab-rx').innerHTML=PATIENT_RX.map(rx=>{
+                let items=JSON.parse(rx.items_json||'[]');
+                let date=rx.created_at?new Date(rx.created_at).toLocaleDateString('en-GB'):'Unknown date';
+                return`<div class="card"><h4 class="font-bold">${rx.diagnosis||'No diagnosis'}</h4><p class="text-xs text-gray-500">${date}</p>${items.map(i=>`<p class="text-xs">💊 ${i.drug_name} - ${i.dosage} ${i.frequency}</p>`).join('')}</div>`;
+            }).join('');
+        }else{
+            document.getElementById('tab-rx').innerHTML='<div class="card"><p>No prescriptions yet.</p></div>';
+        }
+    }
+}
 function switchV(id){if(currentProfile&&id!=='patients'){closeProfile()}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.v===id));if(id==='library')showLib();lucide.createIcons()}
 window.onerror = function(msg, url, line){ alert("An error occurred. Please refresh."); return false; };
 load();
