@@ -1059,14 +1059,80 @@
     });
 
     // ========== PDF DOWNLOAD LOGIC ==========
-    document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
+        document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
+        // ---- تجهيز الورقة للطباعة بوضوح ----
         const sheet1 = document.getElementById('sheet1');
         const sheet2 = document.getElementById('sheet2');
 
-        const canvas1 = await html2canvas(sheet1, { scale: 2, backgroundColor: '#ffffff' });
+        // 1. جعل مربعات الملاحظات الطبية تظهر كاملة
+        const medicalNotes = document.querySelectorAll('.medical-note, .exam-note, .oral-condition-note');
+        medicalNotes.forEach(el => {
+            el.style.height = 'auto';
+            el.style.minHeight = '22px';
+            el.style.fontSize = '12px';
+            el.style.lineHeight = '1.4';
+            el.style.overflow = 'visible';
+        });
+
+        // 2. توسيط النص في خلايا الأسنان
+        const toothCells = document.querySelectorAll('.tooth-cell, .mark-cell');
+        toothCells.forEach(el => {
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
+            el.style.lineHeight = '1';
+            el.style.fontSize = '12px';
+        });
+
+        // 3. تحسين وضوح الإدخالات
+        const allInputs = document.querySelectorAll('.sheet input[type="text"], .sheet textarea');
+        allInputs.forEach(el => {
+            el.style.overflow = 'visible';
+            el.style.height = 'auto';
+            el.style.minHeight = '22px';
+        });
+
+        // 4. إنشاء PDF بدقة عالية (scale=3)
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        const canvas1 = await html2canvas(sheet1, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
+        const canvas2 = await html2canvas(sheet2, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
+
+        const img1 = canvas1.toDataURL('image/png');
+        const img2 = canvas2.toDataURL('image/png');
+
+        const width = 190;
+        const height1 = canvas1.height * width / canvas1.width;
+        const height2 = canvas2.height * width / canvas2.width;
+
+        pdf.addImage(img1, 'PNG', 10, 10, width, height1);
+        if (height2 > 0) {
+            pdf.addPage();
+            pdf.addImage(img2, 'PNG', 10, 10, width, height2);
+        }
+
+        // ---- إعادة الخصائص الأصلية ----
+        medicalNotes.forEach(el => {
+            el.style.height = '16px';
+            el.style.minHeight = '';
+            el.style.fontSize = '';
+            el.style.lineHeight = '';
+            el.style.overflow = '';
+        });
+        toothCells.forEach(el => {
+            el.style.alignItems = '';
+            el.style.justifyContent = '';
+            el.style.lineHeight = '';
+            el.style.fontSize = '';
+        });
+        allInputs.forEach(el => {
+            el.style.overflow = '';
+            el.style.height = '';
+            el.style.minHeight = '';
+        });
+
+        pdf.save('Oral_Surgery_Case_Sheet.pdf');
+    });
         const canvas2 = await html2canvas(sheet2, { scale: 2, backgroundColor: '#ffffff' });
 
         const img1 = canvas1.toDataURL('image/png');
