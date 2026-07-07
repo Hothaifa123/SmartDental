@@ -99,7 +99,7 @@ CASE_SHEET_TYPES = {
 @app.route('/case-sheet/oral-surgery')
 @login_required
 def case_sheet_oral():
-    return render_template('case_sheet_view.html')
+    return render_template('case_sheet_oral_surgery.html')
 
 @app.route('/api/case-sheets')
 @login_required
