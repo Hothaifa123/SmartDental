@@ -347,3 +347,14 @@ def upload_watermark():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
+
+# تحميل الأدوية تلقائياً عند بدء التشغيل إذا كانت قاعدة البيانات فارغة
+with app.app_context():
+    db = get_db()
+    if db.query(Drug).count() == 0:
+        from data.drug_database import ALL_DRUGS
+        for d in ALL_DRUGS:
+            db.add(Drug(**d))
+        db.commit()
+        print(f"✅ Auto-loaded {len(ALL_DRUGS)} drugs")
+    db.close()
