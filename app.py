@@ -358,3 +358,15 @@ with app.app_context():
         db.commit()
         print(f"✅ Auto-loaded {len(ALL_DRUGS)} drugs")
     db.close()
+
+@app.route('/api/init-drugs')
+def init_drugs():
+    db = get_db()
+    count = db.query(Drug).count()
+    if count == 0:
+        from data.drug_database import ALL_DRUGS
+        for d in ALL_DRUGS:
+            db.add(Drug(**d))
+        db.commit()
+        return jsonify({'status': 'ok', 'loaded': len(ALL_DRUGS)})
+    return jsonify({'status': 'already_loaded', 'count': count})
